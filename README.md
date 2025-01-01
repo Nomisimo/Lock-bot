@@ -114,7 +114,3 @@ This project is licensed under the MIT License. Feel free to use and modify it f
 
 Contributions are welcome! If you'd like to improve the bot or add features, feel free to submit a pull request.
 
-## Contact
-
-For questions or support, reach out to [your-email@example.com] or open an issue on the GitHub repository.
-
