@@ -9,8 +9,6 @@ from datetime import datetime
 import hashlib  # Required for password hashing
 from datetime import timedelta
 
-
-
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -46,7 +44,6 @@ LOGS_ENABLED = {
 
 # Function to escape markdown characters
 def escape_markdown(text):
-    # Escape only necessary markdown special characters in the user name and action
     return text.replace('*', '\\*').replace('_', '\\_').replace('`', '\\`').replace('[', '\\[').replace(']', '\\]')
 
 # Log function for toggling log level
@@ -130,7 +127,6 @@ async def send_status_update(context: CallbackContext):
     # Extract the date from the log and format it as HH:MM Uhr DD.MM.YY
     log_date = latest_log.get('date', '')
     try:
-        # Parse the date string and format it into the desired format
         formatted_date = datetime.fromisoformat(log_date.replace("Z", "")).strftime('%H:%M Uhr %d.%m.%y')
     except ValueError:
         formatted_date = "Unknown Date"
@@ -141,8 +137,6 @@ async def send_status_update(context: CallbackContext):
                f"at *{escape_markdown(formatted_date)}*\n")
 
     try:
-        # Send the message with markdown formatting
-        log_message(f"Attempting to send message to chat {CHAT_ID}: {message}", 'lock_status')
         await context.bot.send_message(
             chat_id=CHAT_ID,
             text=message,
@@ -173,9 +167,7 @@ async def battery_status(update: Update, context: CallbackContext):
                        f"*Door Sensor:* {'Critical 🪫' if doorsensor_battery_critical else 'Normal 🔋'}\n")
 
     try:
-        log_message(f"Attempting to send battery status to chat {CHAT_ID}: {battery_message}", 'battery')
         await update.message.reply_text(battery_message, parse_mode='Markdown')
-        log_message(f"Battery status sent to chat {CHAT_ID}: {battery_message}", 'battery')
     except Exception as e:
         log_message(f"Failed to send battery status to chat {CHAT_ID}: {e}", 'battery')
 
@@ -201,7 +193,6 @@ async def lock_command(update: Update, context: CallbackContext):
         # Authorize the user for 10 minutes
         authorized_users[user_id] = datetime.now() + timedelta(minutes=10)
         await update.message.reply_text("You are authorized for 10 minutes to use /lock and /unlock commands.")
-        # Delete the password message for security
         await update.message.delete()
     elif user_id in authorized_users and datetime.now() < authorized_users[user_id]:
         # If already authorized, perform the lock action
@@ -231,7 +222,6 @@ async def unlock_command(update: Update, context: CallbackContext):
         # Authorize the user for 10 minutes
         authorized_users[user_id] = datetime.now() + timedelta(minutes=10)
         await update.message.reply_text("You are authorized for 10 minutes to use /lock and /unlock commands.")
-        # Delete the password message for security
         await update.message.delete()
     elif user_id in authorized_users and datetime.now() < authorized_users[user_id]:
         # If already authorized, perform the unlock action
@@ -246,16 +236,13 @@ async def unlock_command(update: Update, context: CallbackContext):
     else:
         await update.message.reply_text("Unauthorized. Please provide the correct password: /unlock <password>")
         await update.message.delete()
-        
-        
+
 # Command to start the bot
 async def start(update: Update, context: CallbackContext):
-    """Send a welcome message when the /start command is issued."""
     await update.message.reply_text("Hello! I am your Nuki Lock Bot. I will keep you updated with the lock status.")
 
 # Main function to start the bot and schedule jobs
 def main():
-    """Start the bot and set up the scheduler."""
     application = Application.builder().token(TELEGRAM_API_KEY).build()
 
     # Command handler to start the bot
@@ -266,7 +253,6 @@ def main():
     # Command handler to lock and unlock 
     application.add_handler(CommandHandler('lock', lock_command))
     application.add_handler(CommandHandler('unlock', unlock_command))
-
 
     # Scheduler setup for periodic lock status updates
     scheduler = AsyncIOScheduler(jobstores={'default': MemoryJobStore()})
