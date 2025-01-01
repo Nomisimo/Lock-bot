@@ -171,71 +171,6 @@ async def battery_status(update: Update, context: CallbackContext):
     except Exception as e:
         log_message(f"Failed to send battery status to chat {CHAT_ID}: {e}", 'battery')
 
-# Password and authorization setup
-PASSWORD_HASH = hashlib.sha256(b"186262").hexdigest()  # Replace "your_secure_password" with your desired password
-authorized_users = {}  # Dictionary to store user IDs and their authorization expiration time
-
-# Helper function to check password
-def check_password(input_password: str) -> bool:
-    return hashlib.sha256(input_password.encode()).hexdigest() == PASSWORD_HASH
-
-# Command to handle /lock
-async def lock_command(update: Update, context: CallbackContext):
-    if not context.args:
-        await update.message.reply_text("Please provide a password: /lock <password>")
-        return
-
-    user_id = update.effective_user.id
-    password = context.args[0]
-
-    # Verify password
-    if check_password(password):
-        # Authorize the user for 10 minutes
-        authorized_users[user_id] = datetime.now() + timedelta(minutes=10)
-        await update.message.reply_text("You are authorized for 10 minutes to use /lock and /unlock commands.")
-        await update.message.delete()
-    elif user_id in authorized_users and datetime.now() < authorized_users[user_id]:
-        # If already authorized, perform the lock action
-        url = f"https://api.nuki.io/smartlock/{LOCK_ID}/action/lock"
-        headers = {'authorization': f'Bearer {NUKI_API_KEY}'}
-        async with httpx.AsyncClient() as client:
-            response = await client.post(url, headers=headers)
-            if response.status_code == 200:
-                await update.message.reply_text("The lock has been successfully locked 🔒.")
-            else:
-                await update.message.reply_text("Failed to lock the door. Please try again.")
-    else:
-        await update.message.reply_text("Unauthorized. Please provide the correct password: /lock <password>")
-        await update.message.delete()
-
-# Command to handle /unlock
-async def unlock_command(update: Update, context: CallbackContext):
-    if not context.args:
-        await update.message.reply_text("Please provide a password: /unlock <password>")
-        return
-
-    user_id = update.effective_user.id
-    password = context.args[0]
-
-    # Verify password
-    if check_password(password):
-        # Authorize the user for 10 minutes
-        authorized_users[user_id] = datetime.now() + timedelta(minutes=10)
-        await update.message.reply_text("You are authorized for 10 minutes to use /lock and /unlock commands.")
-        await update.message.delete()
-    elif user_id in authorized_users and datetime.now() < authorized_users[user_id]:
-        # If already authorized, perform the unlock action
-        url = f"https://api.nuki.io/smartlock/{LOCK_ID}/action/unlock"
-        headers = {'authorization': f'Bearer {NUKI_API_KEY}'}
-        async with httpx.AsyncClient() as client:
-            response = await client.post(url, headers=headers)
-            if response.status_code == 200:
-                await update.message.reply_text("The lock has been successfully unlocked 🔓.")
-            else:
-                await update.message.reply_text("Failed to unlock the door. Please try again.")
-    else:
-        await update.message.reply_text("Unauthorized. Please provide the correct password: /unlock <password>")
-        await update.message.delete()
 
 # Command to start the bot
 async def start(update: Update, context: CallbackContext):
@@ -250,9 +185,6 @@ def main():
 
     # Command handler to get battery status
     application.add_handler(CommandHandler('Battery', battery_status))
-    # Command handler to lock and unlock 
-    application.add_handler(CommandHandler('lock', lock_command))
-    application.add_handler(CommandHandler('unlock', unlock_command))
 
     # Scheduler setup for periodic lock status updates
     scheduler = AsyncIOScheduler(jobstores={'default': MemoryJobStore()})
