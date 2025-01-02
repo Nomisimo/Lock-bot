@@ -1,21 +1,46 @@
 import logging
+from pathlib import Path
+from configparser import ConfigParser
+from pprint import pformat
 
-# Nuki API Configuration
-LOCK_ID = 17968122341
-NUKI_API_KEY = '748c83fab5c4b45224d45025555a31ff9d6b57dff9aa1765703916611c078a2536085b5474b68312'
+PATH_CONFIG = Path("config.cfg")
+PATH_TEMPLATE = Path(__file__).parent.joinpath("config_template.cfg")
+CONFIG = None
 
-# Telegram bot configuration
-TELEGRAM_API_KEY = '7993283863:AAFJK6p6pTmnHcVxDAQUqx7JLakyrkzDJKw'
-CHAT_ID = 1110493721
 
-# List of authorized chat IDs
-AUTHORIZED_CHAT_IDS = [1110493721]
+class ConfigError(Exception):
+    """Exception for not loaded config / ..."""
 
 # Set up logging
-import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def log_message(message, category='general'):
     logger.info(f"[{category.upper()}] {message}")
 
+
+def load_config(path=None) -> ConfigParser:
+    global PATH_CONFIG, CONFIG
+    if path is not None and path.exists():
+        PATH_CONFIG = path
+
+    if not PATH_CONFIG.exists():
+        assert PATH_TEMPLATE.exists()
+        PATH_CONFIG.write_text(PATH_TEMPLATE.read_text())
+        log_message(f"new config file created at {PATH_CONFIG.resolve()}.\n\tUpdate the file.")
+        raise ConfigError(f"The file @{PATH_CONFIG.resolve()} was created.")
+
+    CONFIG = ConfigParser()
+    CONFIG.read(PATH_CONFIG)
+    log_message(f"The config loaded from {PATH_CONFIG.resolve()}", "config")
+
+def show_config():
+    dconfig = {k: dict(v) for k,v in dict(CONFIG).items()}
+    log_message(f"the current config of lockbot:\n{pformat(dconfig)}", "config")
+
+def _test():
+    load_config()
+    show_config()
+    
+if __name__ == "__main__":
+    _test()
