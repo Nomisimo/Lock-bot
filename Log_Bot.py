@@ -5,7 +5,7 @@ from telegram.ext import Application, CommandHandler, CallbackContext
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.jobstores.memory import MemoryJobStore
 import asyncio
-from datetime import datetime
+from datetime import datetime, timedelta
 from config import TELEGRAM_API_KEY, CHAT_ID, LOCK_ID, NUKI_API_KEY, log_message
 from lock_control import lock_command, unlock_command
 
@@ -24,6 +24,16 @@ ACTION_DESCRIPTIONS = {
     7: "Unknown Action 7 ❓",
 }
 
+# Function to format the timestamp with timezone adjustment
+def format_timestamp(log_date, timezone_offset=1):
+    try:
+        # Parse the ISO date and adjust for timezone
+        timestamp = datetime.fromisoformat(log_date.replace("Z", ""))
+        timestamp += timedelta(hours=timezone_offset)
+        return timestamp.strftime('%H:%M Uhr %d.%m.%y')
+    except ValueError:
+        return "Unknown Date"
+    
 # Initialize last known action
 last_known_action = None
 
@@ -65,12 +75,7 @@ async def get_lock_logs():
         log_message(f"Failed to fetch lock logs: {e}", 'lock_status')
         return None
 
-# Function to send lock status update
 async def send_status_update(context: CallbackContext):
-    if CHAT_ID not in ALLOWED_CHAT_IDS:
-        log_message(f"Chat ID {CHAT_ID} is not authorized to receive updates.", 'lock_status')
-        return
-
     logs = await get_lock_logs()
     if not logs:
         log_message("No logs fetched, skipping status update.", 'lock_status')
@@ -79,6 +84,7 @@ async def send_status_update(context: CallbackContext):
     latest_log = logs[0]
     lock_action = latest_log.get('action', None)
     user_name = latest_log.get('name', None)
+    log_date = latest_log.get('date', '')
 
     if lock_action is None or user_name is None:
         log_message("No action or name found in the log entry.", 'lock_status')
@@ -91,12 +97,9 @@ async def send_status_update(context: CallbackContext):
 
     last_known_action = lock_action
     action_desc = ACTION_DESCRIPTIONS.get(lock_action, 'Unknown Action ❓')
-    log_date = latest_log.get('date', '')
 
-    try:
-        formatted_date = datetime.fromisoformat(log_date.replace("Z", "")).strftime('%H:%M Uhr %d.%m.%y')
-    except ValueError:
-        formatted_date = "Unknown Date"
+    # Use the updated timestamp formatter
+    formatted_date = format_timestamp(log_date, timezone_offset=1)
 
     message = (f"*{escape_markdown(user_name)}* has *{escape_markdown(action_desc)}*\n"
                f"the Door🚪\n" 
