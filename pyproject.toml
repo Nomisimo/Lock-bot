@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "lockbot"
+version = "0.1"
+description = "control the door"
+#long_description = file: src/README_package.md
+#long_description_content_type = text/markdown
+authors = [{name = "Lautis Hannover", email = "hallo@lautis-hannover.de"}]
+requires-python = ">=3.10"
+dependencies = [
+    "httpx >= 0.24",
+    "python-telegram-bot >= 20.3",
+    "apscheduler >= 3.10",
+]
+
+[project.optional-dependencies]
+doc = [
+]
+dev = [
+]
+
+[project.scripts]
+#lockbot = "lockbot.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src/"]
+include = ["lockbot"]
