@@ -94,9 +94,6 @@ ACTION_DESCRIPTIONS = {
    - Ensure the Nuki API key is valid.
    - Check the lock ID and permissions for the API key.
 
-### Debugging Logs
-Enable detailed logging by ensuring the appropriate categories are set to `True` in `LOGS_ENABLED`. Logs are printed to the console for easy debugging.
-
 ## Dependencies
 
 The script uses the following Python libraries:

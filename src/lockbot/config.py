@@ -38,9 +38,22 @@ def show_config():
     dconfig = {k: dict(v) for k,v in dict(CONFIG).items()}
     log_message(f"the current config of lockbot:\n{pformat(dconfig)}", "config")
 
-def _test():
+
+def get(section, option,):
+    if CONFIG is None:
+        raise ConfigError("the config is not loaded.")
+    return CONFIG.get(section, option)
+
+def get_authorized():
+    if CONFIG is None:
+        raise ConfigError("the config is not loaded.")
+    return {key for key, val in CONFIG["authorized"].items() if val}
+
+
+def _test_config():
     load_config()
     show_config()
     
-if __name__ == "__main__":
-    _test()
+
+# if __name__ == "__main__":
+    # _test()
