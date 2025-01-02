@@ -6,7 +6,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.jobstores.memory import MemoryJobStore
 import asyncio
 from datetime import datetime
-from config import TELEGRAM_API_KEY, CHAT_ID, LOCK_ID, NUKI_API_KEY , log_message
+from config import TELEGRAM_API_KEY, CHAT_ID, LOCK_ID, NUKI_API_KEY, log_message
 from lock_control import lock_command, unlock_command
 
 # Set up logging
@@ -27,9 +27,23 @@ ACTION_DESCRIPTIONS = {
 # Initialize last known action
 last_known_action = None
 
+# Define allowed chat IDs
+ALLOWED_CHAT_IDS = {CHAT_ID}  # Use a set for efficient membership checking
+
 # Function to escape markdown characters
 def escape_markdown(text):
     return text.replace('*', '\\*').replace('_', '\\_').replace('`', '\\`').replace('[', '\\[').replace(']', '\\]')
+
+# Decorator for chat ID validation
+def validate_chat_id(func):
+    async def wrapper(update: Update, context: CallbackContext, *args, **kwargs):
+        chat_id = update.effective_chat.id
+        if chat_id not in ALLOWED_CHAT_IDS:
+            log_message(f"Unauthorized access attempt from chat ID {chat_id}.", 'security')
+            await update.message.reply_text("You are not authorized to use this bot.")
+            return
+        return await func(update, context, *args, **kwargs)
+    return wrapper
 
 # Function to get lock logs and process lock status
 async def get_lock_logs():
@@ -53,6 +67,10 @@ async def get_lock_logs():
 
 # Function to send lock status update
 async def send_status_update(context: CallbackContext):
+    if CHAT_ID not in ALLOWED_CHAT_IDS:
+        log_message(f"Chat ID {CHAT_ID} is not authorized to receive updates.", 'lock_status')
+        return
+
     logs = await get_lock_logs()
     if not logs:
         log_message("No logs fetched, skipping status update.", 'lock_status')
@@ -115,6 +133,7 @@ async def get_battery_status():
         return None
 
 # Function to send battery status
+@validate_chat_id
 async def battery_status(update: Update, context: CallbackContext):
     data = await get_battery_status()
     if not data:
@@ -134,9 +153,10 @@ async def battery_status(update: Update, context: CallbackContext):
     try:
         await update.message.reply_text(battery_message, parse_mode='Markdown')
     except Exception as e:
-        log_message(f"Failed to send battery status to chat {CHAT_ID}: {e}", 'battery')
+        log_message(f"Failed to send battery status to chat {update.effective_chat.id}: {e}", 'battery')
 
 # Command to start the bot
+@validate_chat_id
 async def start(update: Update, context: CallbackContext):
     await update.message.reply_text("Hello! I am your Nuki Lock Bot. I will keep you updated with the lock status.")
 
