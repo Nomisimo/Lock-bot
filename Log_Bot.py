@@ -17,9 +17,9 @@ logger = logging.getLogger(__name__)
 ACTION_DESCRIPTIONS = {
     1: "Unlocked 🔓",
     2: "Locked 🔒",
-    3: "Unlatch 🔑",
-    4: "Lock'n'Go 🔒💨",
-    5: "Lock'n'Go with Unlatch 🔒🔑💨",
+    3: "Unlatched 🔑",
+    4: "used Lock'n'Go 🔒💨",
+    5: "used Lock'n'Go with Unlatch 🔒🔑💨",
     6: "Unknown Action 6 ❓",
     7: "Unknown Action 7 ❓",
 }
