@@ -6,8 +6,13 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.jobstores.memory import MemoryJobStore
 import asyncio
 from datetime import datetime, timedelta
-from config import TELEGRAM_API_KEY, CHAT_ID, LOCK_ID, NUKI_API_KEY, log_message
-from lock_control import lock_command, unlock_command
+
+
+# from config import TELEGRAM_API_KEY, CHAT_ID, LOCK_ID, NUKI_API_KEY, log_message
+
+import config
+from config import log_message
+from lock_control import lock_command, unlock_command, validate_chat_id, get_lock_logs, get_battery_status
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -38,42 +43,12 @@ def format_timestamp(log_date, timezone_offset=1):
 last_known_action = None
 
 # Define allowed chat IDs
-ALLOWED_CHAT_IDS = {CHAT_ID}  # Use a set for efficient membership checking
+# ALLOWED_CHAT_IDS = {CHAT_ID}  # Use a set for efficient membership checking
 
 # Function to escape markdown characters
 def escape_markdown(text):
     return text.replace('*', '\\*').replace('_', '\\_').replace('`', '\\`').replace('[', '\\[').replace(']', '\\]')
 
-# Decorator for chat ID validation
-def validate_chat_id(func):
-    async def wrapper(update: Update, context: CallbackContext, *args, **kwargs):
-        chat_id = update.effective_chat.id
-        if chat_id not in ALLOWED_CHAT_IDS:
-            log_message(f"Unauthorized access attempt from chat ID {chat_id}.", 'security')
-            await update.message.reply_text("You are not authorized to use this bot.")
-            return
-        return await func(update, context, *args, **kwargs)
-    return wrapper
-
-# Function to get lock logs and process lock status
-async def get_lock_logs():
-    url = f'https://api.nuki.io/smartlock/{LOCK_ID}/log?limit=2'
-    headers = {
-        'accept': 'application/json',
-        'authorization': f'Bearer {NUKI_API_KEY}'
-    }
-    try:
-        async with httpx.AsyncClient() as client:
-            response = await client.get(url, headers=headers)
-            if response.status_code != 200:
-                log_message(f"Failed to fetch data from Nuki API. Status code: {response.status_code}", 'lock_status')
-                return None
-            data = response.json()
-            log_message(f"Full response from Nuki API: {data}", 'lock_status')
-            return data
-    except Exception as e:
-        log_message(f"Failed to fetch lock logs: {e}", 'lock_status')
-        return None
 
 async def send_status_update(context: CallbackContext):
     logs = await get_lock_logs()
@@ -105,6 +80,9 @@ async def send_status_update(context: CallbackContext):
                f"the Door🚪\n" 
                f"at *{escape_markdown(formatted_date)}*\n")
 
+    CHAT_ID = config.get("telegram", "CHAT_ID")
+    
+
     try:
         await context.bot.send_message(
             chat_id=CHAT_ID,
@@ -115,25 +93,7 @@ async def send_status_update(context: CallbackContext):
     except Exception as e:
         log_message(f"Failed to send message to chat {CHAT_ID}: {e}", 'lock_status')
 
-# Function to get battery status
-async def get_battery_status():
-    url = f'https://api.nuki.io/smartlock/{LOCK_ID}'
-    headers = {
-        'accept': 'application/json',
-        'authorization': f'Bearer {NUKI_API_KEY}'
-    }
-    try:
-        async with httpx.AsyncClient() as client:
-            response = await client.get(url, headers=headers)
-            if response.status_code != 200:
-                log_message(f"Failed to fetch battery data. Status code: {response.status_code}", 'battery')
-                return None
-            data = response.json()
-            log_message(f"Full response from Nuki API: {data}", 'battery')
-            return data
-    except Exception as e:
-        log_message(f"Failed to fetch battery data: {e}", 'battery')
-        return None
+
 
 # Function to send battery status
 @validate_chat_id
@@ -165,7 +125,9 @@ async def start(update: Update, context: CallbackContext):
 
 # Main function to start the bot and schedule jobs
 def main():
-    application = Application.builder().token(TELEGRAM_API_KEY).build()
+    API_KEY = config.get("telegram", "API_KEY")
+    
+    application = Application.builder().token(API_KEY).build()
 
     # Command handlers
     application.add_handler(CommandHandler("start", start))

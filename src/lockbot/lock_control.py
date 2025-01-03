@@ -1,27 +1,59 @@
 import httpx
-from config import LOCK_ID, NUKI_API_KEY, CHAT_ID, log_message
+# from config import LOCK_ID, NUKI_API_KEY, CHAT_ID, log_message
+
+import config
+from config import log_message
 
 # Define allowed chat IDs
-ALLOWED_CHAT_IDS = {CHAT_ID}  # Use a set for efficient membership checking
+# ALLOWED_CHAT_IDS = {CHAT_ID}  # Use a set for efficient membership checking
 
 # Chat ID validation decorator
 def validate_chat_id(func):
     async def wrapper(update, context, *args, **kwargs):
+        ALLOWED_IDS = config.get_authorized()
+
         chat_id = update.effective_chat.id
-        if chat_id not in ALLOWED_CHAT_IDS:
+        if chat_id not in ALLOWED_IDS:
             log_message(f"Unauthorized access attempt from chat ID {chat_id}.", "security")
             await update.message.reply_text("You are not authorized to use this bot.")
             return
         return await func(update, context, *args, **kwargs)
     return wrapper
 
+# Function to get lock logs and process lock status
+async def get_lock_logs():
+    LOCK_ID = config.get("nuki", "LOCK_ID")
+    API_KEY = config.get("nuki", "API_KEY")
+    
+    url = f'https://api.nuki.io/smartlock/{LOCK_ID}/log?limit=2'
+    headers = {
+        'accept': 'application/json',
+        'authorization': f'Bearer {API_KEY}'
+    }
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, headers=headers)
+            if response.status_code != 200:
+                log_message(f"Failed to fetch data from Nuki API. Status code: {response.status_code}", 'lock_status')
+                return None
+            data = response.json()
+            log_message(f"Full response from Nuki API: {data}", 'lock_status')
+            return data
+    except Exception as e:
+        log_message(f"Failed to fetch lock logs: {e}", 'lock_status')
+        return None
+
+
 # Function to send lock action (lock/unlock)
 async def send_lock_action(action, update=None, context=None):
+    LOCK_ID = config.get("nuki", "LOCK_ID")
+    API_KEY = config.get("nuki", "API_KEY")
+    
     url = f"https://api.nuki.io/smartlock/{LOCK_ID}/action/{action}"
     headers = {
         "accept": "application/json",
         "Content-Type": "application/json",
-        "authorization": f"Bearer {NUKI_API_KEY}",
+        "authorization": f"Bearer {API_KEY}",
     }
 
     try:
@@ -50,6 +82,31 @@ async def send_lock_action(action, update=None, context=None):
         if update and context:
             await update.message.reply_text("An error occurred while processing the request. Please try again later.")
         return False
+
+# Function to get battery status
+async def get_battery_status():
+    LOCK_ID = config.get("nuki", "LOCK_ID")
+    API_KEY = config.get("nuki", "API_KEY")
+    
+    
+    url = f'https://api.nuki.io/smartlock/{LOCK_ID}'
+    headers = {
+        'accept': 'application/json',
+        'authorization': f'Bearer {API_KEY}'
+    }
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, headers=headers)
+            if response.status_code != 200:
+                log_message(f"Failed to fetch battery data. Status code: {response.status_code}", 'battery')
+                return None
+            data = response.json()
+            log_message(f"Full response from Nuki API: {data}", 'battery')
+            return data
+    except Exception as e:
+        log_message(f"Failed to fetch battery data: {e}", 'battery')
+        return None
+
 
 # Command to lock the door
 @validate_chat_id
