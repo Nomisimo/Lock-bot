@@ -5,7 +5,7 @@ Created on Thu Jan  2 23:06:16 2025
 @author: kolja
 """
 import os
-from config import load_config, ConfigError, get
+from lockbot.config import load_config, ConfigError, get
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
 
@@ -35,7 +35,7 @@ def main():
 
     # Get Telegram API key from the configuration
     try:
-        telegram_api_key = get("telegram", "telegram_api_key")
+        telegram_api_key = get("telegram", "api_key")
     except ConfigError as e:
         print(f"Error: {e}")
         return

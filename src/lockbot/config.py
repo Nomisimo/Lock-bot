@@ -47,7 +47,7 @@ def get(section, option,):
 def get_authorized():
     if CONFIG is None:
         raise ConfigError("the config is not loaded.")
-    return {key for key, val in CONFIG["authorized"].items() if val}
+    return {int(key) for key, val in CONFIG["authorized"].items() if val}
 
 
 def _test_config():
