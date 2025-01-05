@@ -11,7 +11,6 @@ from datetime import datetime, timedelta
 # from config import TELEGRAM_API_KEY, CHAT_ID, LOCK_ID, NUKI_API_KEY, log
 
 import config
-from config import log
 from lock_control import lock_command, unlock_command, validate_chat_id, get_lock_logs, get_battery_status
 
 # Set up logging
@@ -53,7 +52,7 @@ def escape_markdown(text):
 async def send_status_update(context: CallbackContext):
     logs = await get_lock_logs()
     if not logs:
-        log("No logs fetched, skipping status update.", 'lock_status')
+        logger.info("No logs fetched, skipping status update.")
         return
 
     latest_log = logs[0]
@@ -62,12 +61,12 @@ async def send_status_update(context: CallbackContext):
     log_date = latest_log.get('date', '')
 
     if lock_action is None or user_name is None:
-        log("No action or name found in the log entry.", 'lock_status')
+        logger.warning("No action or name found in the log entry.")
         return
 
     global last_known_action
     if lock_action == last_known_action:
-        log(f"Lock action hasn't changed. Current action: {ACTION_DESCRIPTIONS.get(lock_action, 'Unknown Action ❓')}", 'lock_status')
+        logger.info(f"Lock action hasn't changed. Current action: {ACTION_DESCRIPTIONS.get(lock_action, 'Unknown Action ❓')}")
         return
 
     last_known_action = lock_action
@@ -89,9 +88,9 @@ async def send_status_update(context: CallbackContext):
             text=message,
             parse_mode='Markdown'
         )
-        log(f"Message sent to chat {CHAT_ID}: {message}", 'lock_status')
+        logger.info(f"Message sent to chat {CHAT_ID}: {message}")
     except Exception as e:
-        log(f"Failed to send message to chat {CHAT_ID}: {e}", 'lock_status')
+        logger.error(f"Failed to send message to chat {CHAT_ID}: {e}")
 
 
 
@@ -116,7 +115,7 @@ async def battery_status(update: Update, context: CallbackContext):
     try:
         await update.message.reply_text(battery_message, parse_mode='Markdown')
     except Exception as e:
-        log(f"Failed to send battery status to chat {update.effective_chat.id}: {e}", 'battery')
+        logger.error(f"Failed to send battery status to chat {update.effective_chat.id}: {e}")
 
 # Command to start the bot
 @validate_chat_id
@@ -141,13 +140,13 @@ def main():
     scheduler.start()
 
     # Start the bot
-    log("Starting the bot...", 'general')
+    logger.info("Starting the bot...")
     application.run_polling()
 
 if __name__ == "__main__":
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        log("Bot stopped manually.", 'general')
+        logger.info("Bot stopped manually.")
     except Exception as e:
-        log(f"Unexpected error: {e}", 'general')
+        logger.error(f"Unexpected error: {e}")

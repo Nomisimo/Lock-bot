@@ -11,8 +11,10 @@ from datetime import datetime
 from telegram import Update
 from telegram.ext import  ContextTypes
 
-from lockbot import config, log
-from .util import remove_job_if_exists, unpin_all
+from lockbot import config
+from lockbot.bot.util import remove_job_if_exists, unpin_all
+
+logger = logging.getLogger(__name__)
 
 
 async def handle_battery(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -20,7 +22,7 @@ async def handle_battery(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     
     TODO: Implement
     """
-    await update.message.reply_text("this should be the battery status")
+    await update.message.reply_text("this should be the battery status, not implemented")
 
 
 async def handle_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -44,7 +46,7 @@ async def handle_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     try:
         await context.bot.pin_chat_message(chat_id=chat_id, message_id=message.message_id)
     except Exception as e:
-        log(f"Error pinning message: {e}", "bot", level=logging.ERROR)
+        logger.error(f"Error pinning message: {e}")
 
     interval = int(config.get("telegram", "status_interval", fallback=10))
 
@@ -68,4 +70,4 @@ async def update_status_message(context: ContextTypes.DEFAULT_TYPE) -> None:
     try:
         await context.bot.edit_message_text(chat_id=chat_id, message_id=message_id, text= new_text)
     except Exception as e:
-        log(f"Error updating message: {e}", "bot", level=logging.ERROR)
+        logger.error(f"Error updating message: {e}")

@@ -10,12 +10,10 @@ from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, filte
 
 
 import logging
-logging.getLogger("httpx").setLevel(logging.WARNING)
-
+logger = logging.getLogger(__name__)
 TIME_UPDATE = 10
 
 from lockbot import config
-from lockbot.config import log
 
 from functools import wraps
 
@@ -28,7 +26,7 @@ def validate_chat_id(func):
         print(ALLOWED_IDS)
         chat_id = update.effective_chat.id
         if chat_id not in ALLOWED_IDS:
-            log(f"Unauthorized access attempt from chat ID {chat_id}.", "security")
+            logger.error(f"Unauthorized access attempt from chat ID {chat_id}.")
             await update.message.reply_text("You are not authorized to use this bot.")
             return
         return await func(update, context, *args, **kwargs)

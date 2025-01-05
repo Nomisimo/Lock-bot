@@ -5,25 +5,26 @@ Created on Sat Jan  4 13:21:20 2025
 @author: kolja
 """
 
-import requests
 from pprint import pprint
-from lockbot import config
 import logging
 from http import HTTPStatus
+import asyncio
 
-from lockbot.config import log
 from urllib.parse import urljoin, urlencode
 
 import httpx
-import asyncio
+import requests
+
+from lockbot import config
+
 
 BASE_URL = r"https://api.nuki.io/"
-
+logger = logging.getLogger(__name__)
 
 def handle_http_status(status):
     code = HTTPStatus(status)
     if not code.is_success:
-        log(code.description, "lock", level=logging.ERROR)
+        logger.error(code.description)
     return code.is_success  
 
 def get_headers(api_key=None):
@@ -71,7 +72,7 @@ def get_status() -> dict:
         data = response.json()
         return data
     except Exception as e:
-        log(f"Failed to fetch state data: {e}", 'lock')
+        logger.error(f"Failed to fetch state data: {e}")
         return None
 
 
@@ -85,7 +86,7 @@ def get_logs(num=5) -> list[dict]:
         data = response.json()
         return data
     except Exception as e:
-        log(f"Failed to fetch logs: {e}", 'lock')
+        logger.error(f"Failed to fetch logs: {e}")
         return None
 
 
@@ -96,7 +97,7 @@ def post_action(action="lock"):
         response = requests.post(url, headers=headers)
         return handle_http_status(response.status_code)
     except Exception as e:
-        log(f"Error sending lock action: {e}", "lock_status")
+        logger.error(f"Error sending lock action: {e}")
         return False
 
 
@@ -114,14 +115,13 @@ async def get_lock_status():
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=headers)
             if response.status_code != 200:
-                log(f"Failed to fetch battery data. Status code: {response.status_code}", 'battery')
+                logger.error(f"Failed to fetch battery data. Status code: {response.status_code}")
                 return None
             data = response.json()
             pprint(data)
-            # log(f"Full response from Nuki API: {data}", 'battery')
             return data
     except Exception as e:
-        log(f"Failed to fetch battery data: {e}", 'battery')
+        logger.error(f"Failed to fetch battery data: {e}")
         return None
     
 async def test():

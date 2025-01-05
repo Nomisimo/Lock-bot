@@ -17,14 +17,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# reduce logging for httpx
-logging.getLogger("httpx").setLevel(logging.WARNING)
-
-
-
-def log(message, category='general', level=logging.INFO):
-    logger.log(level, f"[{category.lower()}] {message}")
-
 
 def load_config(path=None) -> ConfigParser:
     global PATH_CONFIG, CONFIG
@@ -34,18 +26,36 @@ def load_config(path=None) -> ConfigParser:
     if not PATH_CONFIG.exists():
         assert PATH_TEMPLATE.exists()
         PATH_CONFIG.write_text(PATH_TEMPLATE.read_text())
-        log(f"new config file created at {PATH_CONFIG.resolve()}.\n\tUpdate the file.")
+        logger.info(f"new config file created at {PATH_CONFIG.resolve()}.\n\tUpdate the file.")
         raise ConfigError(f"The file @{PATH_CONFIG.resolve()} was created.")
 
     CONFIG = ConfigParser()
     CONFIG.read(PATH_CONFIG)
-    log(f"The config loaded from {PATH_CONFIG.resolve()}", "config")
+    
+    update_loglevels()
+    logger.info(f"The config loaded from {PATH_CONFIG.resolve()}")
 
 def show_config():
     dconfig = {k: dict(v) for k,v in dict(CONFIG).items()}
-    log(f"the current config of lockbot:\n{pformat(dconfig)}", "config")
+    logger.info(f"the current config of lockbot:\n{pformat(dconfig)}")
 
 
+def update_loglevels():
+    levels = dict(CONFIG["logging"])
+    
+    levels = {k: CONFIG["logging"].getint(k) for k in CONFIG["logging"]}
+    for name, lvl in levels.items():
+        logging.getLogger(name).setLevel(lvl)
+    logger.info(f"Updated loglevel for {list(levels)}")
+    
+
+def test_logger(logger=None):
+    if logger is None:
+        logger = logging.getLogger(__name__)
+    logger.debug("this is debug")
+    logger.info("this is info")
+    logger.warning("this is warning")
+    logger.error("this is error")
 
 sentinel = object()
 def get(section, option, fallback=sentinel):
@@ -66,8 +76,10 @@ def get_authorized():
 
 def _test_config():
     load_config()
-    show_config()
+    update_loglevels()
+    test_logger()
+    # show_config()
     
 
-# if __name__ == "__main__":
-    # _test()
+if __name__ == "__main__":
+    _test_config()

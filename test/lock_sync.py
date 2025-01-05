@@ -11,9 +11,10 @@ from lockbot import config
 import logging
 from http import HTTPStatus
 
-from lockbot.config import log
+
 from urllib.parse import urljoin, urlencode
 
+logger = logging.getLogger(__name__)
 
 def get_headers(api_key=None):
     if api_key is None:
@@ -55,7 +56,7 @@ def url_action(action="lock", lock_id=None):
 def handle_status(status):
     code = HTTPStatus(status)
     if not code.is_success:
-        log(code.description, "lock", level=logging.ERROR)
+        logger.error(code.description, "lock")
     return code.is_success    
 
 def get_status() -> dict:
@@ -69,7 +70,7 @@ def get_status() -> dict:
         data = response.json()
         return data
     except Exception as e:
-        log(f"Failed to fetch state data: {e}", 'lock')
+        logger.error(f"Failed to fetch state data: {e}",)
         return None
 
 def get_logs(num=5) -> list[dict]:
@@ -82,7 +83,7 @@ def get_logs(num=5) -> list[dict]:
         data = response.json()
         return data
     except Exception as e:
-        log(f"Failed to fetch logs: {e}", 'lock')
+        logger.error(f"Failed to fetch logs: {e}")
         return None
 
 def post_action(action="lock"):
@@ -93,16 +94,16 @@ def post_action(action="lock"):
         response = requests.post(url, headers=headers)
         return handle_status(response.status_code)
     except Exception as e:
-        log(f"Error sending lock action: {e}", "lock_status")
+        logger.error(f"Error sending lock action: {e}")
         return False
         
 
+if __name__ == "__main__":
+    config.load_config()
+    # state = (get_status()["state"])
+    # get_logs()
     
-config.load_config()
-# state = (get_status()["state"])
-# get_logs()
-
-post_action(action="lock")
+    post_action(action="lock")
 
 
 
