@@ -15,18 +15,20 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 TIME_UPDATE = 10
 
 from lockbot import config
-from lockbot.config import log_message
+from lockbot.config import log
 
 from functools import wraps
 
-@wraps
+
 def validate_chat_id(func):
+    
+    @wraps(func)
     async def wrapper(update, context, *args, **kwargs):
         ALLOWED_IDS = config.get_authorized()
         print(ALLOWED_IDS)
         chat_id = update.effective_chat.id
         if chat_id not in ALLOWED_IDS:
-            log_message(f"Unauthorized access attempt from chat ID {chat_id}.", "security")
+            log(f"Unauthorized access attempt from chat ID {chat_id}.", "security")
             await update.message.reply_text("You are not authorized to use this bot.")
             return
         return await func(update, context, *args, **kwargs)
@@ -44,7 +46,6 @@ async def handle_secret(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     await update.message.reply_text("this should be secret")
 
 
-
 def run_app():
     config.load_config()
     app = ApplicationBuilder().token(config.get("telegram", "api_key")).build()
@@ -52,11 +53,6 @@ def run_app():
     app.add_handler(CommandHandler("start", handle_start))
     app.add_handler(CommandHandler("secret", handle_secret))
     
-    # app.add_handler(CommandHandler("status", handle_status))
-    # app.add_handler(CommandHandler("battery", handle_battery))
-    # app.add_handler(CommandHandler("lock", handle_lock))
-    # app.add_handler(CommandHandler("unlock", handle_unlock))
-        
     app.run_polling()
 
 if __name__ == "__main__":

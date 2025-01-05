@@ -15,8 +15,15 @@ class ConfigError(Exception):
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def log_message(message, category='general'):
-    logger.info(f"[{category.upper()}] {message}")
+# reduce logging for httpx
+logging.getLogger("httpx").setLevel(logging.WARNING)
+
+
+
+def log(message, category='general', level=logging.INFO):
+    logger.log(level, f"[{category.lower()}] {message}")
+
+
 
 
 def load_config(path=None) -> ConfigParser:
@@ -27,16 +34,16 @@ def load_config(path=None) -> ConfigParser:
     if not PATH_CONFIG.exists():
         assert PATH_TEMPLATE.exists()
         PATH_CONFIG.write_text(PATH_TEMPLATE.read_text())
-        log_message(f"new config file created at {PATH_CONFIG.resolve()}.\n\tUpdate the file.")
+        log(f"new config file created at {PATH_CONFIG.resolve()}.\n\tUpdate the file.")
         raise ConfigError(f"The file @{PATH_CONFIG.resolve()} was created.")
 
     CONFIG = ConfigParser()
     CONFIG.read(PATH_CONFIG)
-    log_message(f"The config loaded from {PATH_CONFIG.resolve()}", "config")
+    log(f"The config loaded from {PATH_CONFIG.resolve()}", "config")
 
 def show_config():
     dconfig = {k: dict(v) for k,v in dict(CONFIG).items()}
-    log_message(f"the current config of lockbot:\n{pformat(dconfig)}", "config")
+    log(f"the current config of lockbot:\n{pformat(dconfig)}", "config")
 
 
 def get(section, option,):
@@ -47,7 +54,7 @@ def get(section, option,):
 def get_authorized():
     if CONFIG is None:
         raise ConfigError("the config is not loaded.")
-    return {int(key) for key, val in CONFIG["authorized"].items() if val}
+    return {int(key) for key, val in CONFIG["authorized"].items() if val == "True"}
 
 
 def _test_config():

@@ -17,7 +17,7 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 TIME_UPDATE = 10
 
 from lockbot import config
-from lockbot.config import log_message
+from lockbot.config import log
 
 async def handle_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # Define the keyboard layout

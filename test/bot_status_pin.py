@@ -10,12 +10,12 @@ from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, filte
 
 
 import logging
-logging.getLogger("httpx").setLevel(logging.WARNING)
-logger = logging.getLogger(__name__)
+# logging.getLogger("httpx").setLevel(logging.WARNING)
+# logger = logging.getLogger(__name__)
 TIME_UPDATE = 10
 
 from lockbot import config
-from lockbot.config import log_message
+from lockbot.config import log
 from datetime import datetime
 
 
@@ -25,16 +25,16 @@ async def handle_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     chat_id = update.effective_chat.id
     try:
         await context.bot.unpin_all_chat_messages(chat_id=chat_id)
-        logger.info(f"Unpinned all messages in chat {chat_id}.")
+        log(f"Unpinned all messages in chat {chat_id}.", "bot")
     except Exception as e:
-        logger.warning(f"Error unpinning messages in chat {chat_id}: {e}")
+        log(f"Error unpinning messages in chat {chat_id}: {e}", "bot", logging.ERROR)
     
     # create message
     message = await update.message.reply_text(f'Start time: {datetime.now().strftime("%H:%M:%S")}')
     try:
         await context.bot.pin_chat_message(chat_id=chat_id, message_id=message.message_id)
     except Exception as e:
-        log_message(f"Error pinning message: {e}", "error")
+        log(f"Error pinning message: {e}", "bot", level=logging.ERROR)
 
     # start updates
     context.job_queue.run_repeating(update_status, 
@@ -54,7 +54,7 @@ async def update_status(context: ContextTypes.DEFAULT_TYPE) -> None:
             text=f'The lock is closed\n{datetime.now().strftime("%H:%M:%S")}'
         )
     except Exception as e:
-        log_message(f"Error updating message: {e}", "error")
+        log(f"Error updating message: {e}", "bot", level=logging.ERROR)
 
 
 
