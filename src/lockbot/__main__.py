@@ -5,9 +5,8 @@ Created on Thu Jan  2 23:06:16 2025
 @author: kolja
 """
 import os
-from lockbot.config import load_config, ConfigError, get
-from telegram import Update
-from telegram.ext import Application, CommandHandler, ContextTypes
+
+from lockbot import config, create_app
 
 def greet():
     """Display a greeting to the user."""
@@ -16,7 +15,10 @@ def greet():
 
 def main():
     """Main function to load config and start the bot."""
-    greet()
     
+    config.load_config()
+    app = create_app(config.get("telegram", "api_key"))    
+    app.run_polling()
+
 if __name__ == "__main__":
     main()

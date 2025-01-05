@@ -14,7 +14,7 @@ import logging
 
 from lockbot import config
 from lockbot.config import log
-from lockbot.bot_util import remove_job_if_exists, unpin_all
+from lockbot.bot.util import remove_job_if_exists, unpin_all
 TIME_UPDATE = 10
 
 

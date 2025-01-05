@@ -13,7 +13,7 @@ class ConfigError(Exception):
 
 # Set up logging
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+    format="%(asctime)s - %(levelname)-8s - %(name)s - %(message)s", level=logging.INFO
 )
 logger = logging.getLogger(__name__)
 
@@ -24,8 +24,6 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 
 def log(message, category='general', level=logging.INFO):
     logger.log(level, f"[{category.lower()}] {message}")
-
-
 
 
 def load_config(path=None) -> ConfigParser:
@@ -48,9 +46,16 @@ def show_config():
     log(f"the current config of lockbot:\n{pformat(dconfig)}", "config")
 
 
-def get(section, option,):
+
+sentinel = object()
+def get(section, option, fallback=sentinel):
+    """ retrieve a value from the config file.
+    The sentinel is a custom value to allow 'None' to be a possible fallback value.
+    """
     if CONFIG is None:
         raise ConfigError("the config is not loaded.")
+    if fallback is not sentinel:
+        return CONFIG.get(section, option, fallback=fallback)
     return CONFIG.get(section, option)
 
 def get_authorized():

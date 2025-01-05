@@ -8,7 +8,7 @@ import logging
 
 from telegram.ext import ContextTypes
 
-from .config import log
+from ..config import log
 
 
 def remove_job_if_exists(name: str, context: ContextTypes.DEFAULT_TYPE) -> bool:
@@ -21,6 +21,7 @@ def remove_job_if_exists(name: str, context: ContextTypes.DEFAULT_TYPE) -> bool:
     return True
 
 async def unpin_all(chat_id: int, context: ContextTypes.DEFAULT_TYPE):
+    """ Unpin all messages from chat."""
     try:
         await context.bot.unpin_all_chat_messages(chat_id=chat_id)
         log(f"Unpinned all messages in chat {chat_id}.", "bot")

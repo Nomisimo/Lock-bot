@@ -6,4 +6,7 @@ Created on Thu Jan  2 23:00:50 2025
 """
 
 from . import config
-from . import bot_util
+from .config import log
+
+from . import bot
+from .bot import create_app
