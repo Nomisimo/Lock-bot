@@ -27,7 +27,8 @@ class Nuki():
         self = cls(api_key=api_key)
         self.lock_ids = self.get_smartlock_ids()
         logger.info(f"{cls.__name__} created, found locks {self.lock_ids}")
-        
+        return self
+    
     @property
     def headers(self):
         headers = {
@@ -97,6 +98,7 @@ class AsyncNuki(Nuki):
         self = cls(api_key=api_key)
         self.lock_ids = await self.get_smartlock_ids()
         logger.info(f"{cls.__name__} created, found locks {self.lock_ids}")
+        return self
     
     async def get_request(self, url):
         try: 

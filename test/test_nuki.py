@@ -19,7 +19,7 @@ async def test_async():
     logging.info("async")
     config.load_config()
     nuki = await AsyncNuki.new()
-    pass
+    print()
     
 if __name__ == "__main__":
     test()
