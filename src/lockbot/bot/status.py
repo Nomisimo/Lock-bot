@@ -12,11 +12,12 @@ from telegram import Update
 from telegram.ext import  ContextTypes
 
 from lockbot import config
+from lockbot.bot.auth import validate_chat_id
 from lockbot.bot.util import remove_job_if_exists, unpin_all
 
 logger = logging.getLogger(__name__)
 
-
+@validate_chat_id
 async def handle_battery(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """ retrieve the battery status.
     
@@ -25,6 +26,7 @@ async def handle_battery(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     await update.message.reply_text("this should be the battery status, not implemented")
 
 
+@validate_chat_id
 async def handle_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """ Retrieve the lock status and display in pinned message.
     

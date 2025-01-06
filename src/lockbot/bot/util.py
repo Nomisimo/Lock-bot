@@ -24,7 +24,7 @@ async def unpin_all(chat_id: int, context: ContextTypes.DEFAULT_TYPE):
     """ Unpin all messages from chat."""
     try:
         await context.bot.unpin_all_chat_messages(chat_id=chat_id)
-        logger.info(f"Unpinned all messages in chat {chat_id}.", "bot")
+        logger.info(f"Unpinned all messages in chat {chat_id}.")
     except Exception as e:
         logger.error(f"Error unpinning messages in chat {chat_id}: {e}")
     

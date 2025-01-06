@@ -10,6 +10,9 @@ logger = logging.getLogger(__name__)
 from telegram import Update
 from telegram.ext import  ContextTypes
 
+from .auth import validate_chat_id
+
+@validate_chat_id
 async def handle_lock(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """ Send lock action. 
     
@@ -18,6 +21,7 @@ async def handle_lock(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     logger.debug("handle_lock")
     await update.message.reply_text("this should lock the door, not implemented")
 
+@validate_chat_id
 async def handle_unlock(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """ Send unlock action.
     

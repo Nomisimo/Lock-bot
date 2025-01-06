@@ -29,6 +29,7 @@ async def handle_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     """ Start the bot. Create custom keyboard.
     
     TODO: Autostart status updates.
+    TODO: Handle not authorised /start call
     """
     # Define the keyboard layout
     it = iter(ACTIONS.keys())
