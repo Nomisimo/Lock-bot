@@ -21,8 +21,12 @@ class Nuki():
             api_key = config.get("nuki", "api_key")
         
         self.API_KEY = api_key
+        
+    @classmethod
+    def new(cls, api_key=None):
+        self = cls(api_key=api_key)
         self.lock_ids = self.get_smartlock_ids()
-        logger.info(f"Nuki created, found locks {self.lock_ids}")
+        logger.info(f"{cls.__name__} created, found locks {self.lock_ids}")
         
     @property
     def headers(self):
@@ -85,3 +89,58 @@ class Nuki():
         data = self.get_smartlock(lock_id=None)
         ids = [d["smartlockId"] for d in data]
         return ids
+    
+class AsyncNuki(Nuki):
+        
+    @classmethod
+    async def new(cls, api_key = None):
+        self = cls(api_key=api_key)
+        self.lock_ids = await self.get_smartlock_ids()
+        logger.info(f"{cls.__name__} created, found locks {self.lock_ids}")
+    
+    async def get_request(self, url):
+        try: 
+            async with httpx.AsyncClient(headers=self.headers) as client:
+                response = await client.get(url)
+                if not self.handle_http_status(response.status_code):
+                    return None
+                data = response.json()
+                return data
+        except Exception as e:
+            logger.error(f"GET request failed for {url}\n\t{e}")
+            return None
+        
+    async def post_request(self, url):
+        try:
+            async with httpx.AsyncClient(headers=self.headers) as client:    
+                response = await client.post(url)
+            return self.handle_http_status(response.status_code)
+        except Exception as e:
+            logger.error(f"Error sending lock action: {e}")
+            return False
+        
+    async def get_smartlock(self, lock_id=None) -> list | dict:
+        url = urls.url_status(lock_id=lock_id)
+        data = await self.get_request(url)
+        return data
+        
+    async def get_log(self, lock_id=None, limit=5) -> list:
+        url = urls.url_log(lock_id=lock_id, limit=limit)
+        data = await self.get_request(url)
+        return data
+
+    async def post_lock(self, lock_id) -> bool:
+        url = urls.url_action(lock_id, action="lock")
+        success = await self.post_request(url)
+        return success
+    
+    async def post_unlock(self, lock_id) -> bool:
+        url = urls.url_action(lock_id, action="unlock")
+        success = await self.post_request(url)
+        return success
+    
+    async def get_smartlock_ids(self) -> list[int]:
+        data = await self.get_smartlock(lock_id=None)
+        ids = [d["smartlockId"] for d in data]
+        return ids
+    
