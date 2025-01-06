@@ -5,9 +5,10 @@ Created on Sat Jan  4 13:21:20 2025
 @author: kolja
 """
 
-from . import util
-from . import url
+from . import urls
+from . import request
+from .nuki import Nuki
+
 from . import const
 from . import parse
 
-from . import request

@@ -5,12 +5,19 @@ Created on Sun Jan  5 23:43:16 2025
 @author: kolja
 """
 import logging
+import http
 import httpx
 
-from .util import handle_http_status
-from .url import get_headers, url_log, url_action, url_status
+from .urls import get_headers, url_log, url_action, url_status
 
 logger = logging.getLogger(__name__)
+
+def handle_http_status(status):
+    code = http.HTTPStatus(status)
+    if not code.is_success:
+        logger.error(code.description)
+    return code.is_success  
+
 
 def get_status() -> dict:
     url = url_status()
@@ -40,8 +47,8 @@ async def async_get_status() -> dict:
         logger.error(f"Failed to fetch status data: {e}")
         return None
 
-def get_logs(num=5) -> list[dict]:
-    url = url_log(num=num)
+def get_logs(limit=5) -> list[dict]:
+    url = url_log(limit=limit)
     headers = get_headers()
     try:
         with httpx.Client(headers=headers) as client:
@@ -55,8 +62,8 @@ def get_logs(num=5) -> list[dict]:
         return []
     
     
-async def async_get_logs(num=5) -> list[dict]:
-    url = url_log(num=num)
+async def async_get_logs(limit=5) -> list[dict]:
+    url = url_log(limit=limit)
     headers = get_headers()
     try:
         async with httpx.AsyncClient(headers=headers) as client:
