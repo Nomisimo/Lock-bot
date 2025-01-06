@@ -3,6 +3,7 @@
 # config files for secrets
 *.cfg
 !src/lockbot/config_template.cfg
+test/data/*
 
 # temporary files which can be created if a process still has a handle open of a deleted file
 .fuse_hidden*

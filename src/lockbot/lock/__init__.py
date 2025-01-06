@@ -7,6 +7,7 @@ Created on Sat Jan  4 13:21:20 2025
 
 from . import util
 from . import url
-from . import data
+from . import const
+from . import parse
+
 from . import request
-from . import asyncron
