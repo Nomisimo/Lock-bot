@@ -5,7 +5,7 @@ Created on Thu Jan  2 23:06:16 2025
 @author: kolja
 """
 import os
-from lockbot import config, create_app
+from lockbot import config, create_app, AsyncNuki
 
 import logging
 logger = logging.getLogger("lockbot")
@@ -19,7 +19,10 @@ def main():
     """Main function to load config and start the bot."""
     greet()
     config.load_config()
-    app = create_app(config.get("telegram", "api_key"))    
+    
+    app = create_app(token = config.get("telegram", "api_key"),
+                     nuki= config.get("nuki", "api_key")
+                     )
     app.run_polling()
 
 if __name__ == "__main__":

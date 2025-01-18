@@ -2,6 +2,47 @@
 
 This project is a Python-based Telegram bot that integrates with the Nuki Smart Lock API to provide real-time updates and status information about your smart lock. The bot can send periodic lock status updates, battery statuses, and more directly to a specified Telegram chat.
 
+
+ToDo:
+
+- check if last log is known, else generate messages for each new log
+- check once every day the state to show battery message when critical
+- status message: time, offen/zu
+und wer / was gemacht hat in msg im chat als protokoll
+
+
+- lock -> post action, wait 10s retrive logs
+- unlock -> same
+
+next: 
+- check if door sensor says closed befor locking the door
+- check if door closed before locking the door. 
+
+
+
+next:
+
+- code -> generate new keypad code with a custom time interval
+- -> abfrage
+    - was/wer
+    - von/bis
+    - code wird zufällig generiert, gesetzt und an admin zurück geschickt.
+    
+- code wird zurückgeschickt in formatierter nachricht, die direkt weitergeleitet werden kann
+- (inkl. anreise-bild)
+
+NEXT PROJEKT
+- anfrage bot
+- wer bin ich, was brauch ich, welcher tag/zeitraum
+- 
+
+
+
+
+
+
+
+
 ## Features
 
 - **Real-Time Lock Updates:** Receive lock action notifications (e.g., Locked, Unlocked, Unlatched) in your Telegram chat.

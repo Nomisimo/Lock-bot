@@ -4,7 +4,7 @@ Created on Sun Jan  5 23:00:50 2025
 
 @author: kolja, momo
 """
-
+from . import message
 from . import util
 from . import action
 from . import status

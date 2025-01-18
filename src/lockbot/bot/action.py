@@ -10,23 +10,28 @@ logger = logging.getLogger(__name__)
 from telegram import Update
 from telegram.ext import  ContextTypes
 
-from .auth import validate_chat_id
+from lockbot.bot import auth
 
-@validate_chat_id
+
+@auth.validate_or_warning
 async def handle_lock(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """ Send lock action. 
-    
-    TODO: Implement.
     """
     logger.debug("handle_lock")
-    await update.message.reply_text("this should lock the door, not implemented")
+    nuki = context.bot_data["nuki"]
+    lock_id = context.bot_data["lock_id"]
+    success = await nuki.post_lock(lock_id)
+    
+    await update.message.reply_text("door should lock")
 
-@validate_chat_id
+@auth.validate_or_warning
 async def handle_unlock(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """ Send unlock action.
-    
-    TODO: Implement.
     """
-    logger.debug("handle_unlock")
-    await update.message.reply_text("this should unlock the door, not implemented")
-   
+    logger.debug("handle_lock")
+    nuki = context.bot_data["nuki"]
+    lock_id = context.bot_data["lock_id"]
+    success = await nuki.post_unlock(lock_id)
+    
+    await update.message.reply_text("door should unlock")
+
