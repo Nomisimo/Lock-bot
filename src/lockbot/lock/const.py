@@ -108,6 +108,7 @@ class ACTION(Enum):
     door_opened = 240
     door_closed = 241
     door_jammed = 242
+    unknown2 = 244
     
     door_log_enabled = 250
     door_log_disabled = 251

@@ -60,36 +60,3 @@ def state(data, reduce=True):
     return data
 
 
-def emoji_battery(critical=False):
-    return '🪫' if critical else '🔋'
-
-def msg_battery(data):
-    status = state(data)
-    msg = (
-        "**battery status**\n"
-        f"- lock   {emoji_battery(status['batteryCritical'])}({status['batteryCharge']}%)\n"
-        f"- keypad {emoji_battery(status['batteryCritical'])}\n"
-        f"- sensor {emoji_battery(status['batteryCritical'])}"
-        f"({status['updateDate'].strftime('%T')})"
-        )
-    return msg
-
-def emoji_action(state, action):
-    if state != LOG_STATE.success:
-        return "❌"
-    if action == ACTION.lock:
-        return "🔒"
-    if action == ACTION.unlock:
-        return "🔓"
-    return "❔"
-    
-
-def msg_log(data, user="lockbot"):
-    l = log(data)
-    time = l['date'].strftime('%T')
-    user = user if l["name"] == "Lock Bot 🤖" else l["trigger"].name
-    action = emoji_action(l["state"], l["action"]) + l["action"].name
-    msg = f"*LOG {time}*\n{action} by {user}"
-    if (state := l["state"]) != LOG_STATE.success:
-        msg +=f"\n {state.name}"
-    return msg
