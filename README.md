@@ -19,6 +19,10 @@ pip install -e .
 ```
 python -m lockbot
 ```
+or
+```
+lockbot
+```
 
 ## Current features and Changelog
 - [x] lock and unlock: send the action to the smartlock

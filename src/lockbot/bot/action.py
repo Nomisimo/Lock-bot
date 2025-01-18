@@ -13,7 +13,7 @@ from telegram.ext import  ContextTypes
 from lockbot.bot import auth
 
 
-@auth.validate_or_warning
+@auth.validate_or_warning()
 async def handle_lock(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """ Send lock action. 
     """
@@ -24,7 +24,7 @@ async def handle_lock(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     
     await update.message.reply_text("door should lock")
 
-@auth.validate_or_warning
+@auth.validate_or_warning()
 async def handle_unlock(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """ Send unlock action.
     """

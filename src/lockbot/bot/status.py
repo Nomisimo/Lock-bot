@@ -19,10 +19,11 @@ from lockbot.bot import message
 logger = logging.getLogger(__name__)
 
 
-@auth.validate_or_warning
+@auth.validate_or_warning()
 async def handle_battery(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """ retrieve the smartlock status and send battery info.
     """
+    logger.debug("handle_battery")
     nuki = context.bot_data["nuki"]
     lock_id = context.bot_data["lock_id"]
     data = await nuki.get_smartlock(lock_id)
@@ -37,10 +38,11 @@ async def get_log_from_context(context, n=3):
     return data
 
 
-@auth.validate_or_warning
+@auth.validate_or_warning()
 async def handle_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """ Retrieve logs, show messages for updates and pin the current state at the top.
     """
+    logger.debug("handle_status")
     chat_id = update.effective_chat.id
     job_name = f"status_{chat_id}"
     
@@ -73,6 +75,7 @@ async def handle_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 async def update_status_message(context: ContextTypes.DEFAULT_TYPE) -> None:
     """ Retrieve logs, show messages for updates and pin the current state at the top.
     """
+    logger.debug("update_status")
     chat_id = context.job.data["chat_id"]
     message_id = context.job.data["message_id"]
     chat = await context.bot.get_chat(chat_id)
