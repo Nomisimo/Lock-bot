@@ -13,6 +13,8 @@ def test():
     logging.info("syncronous")    
     config.load_config()
     nuki = Nuki.new()
+    lock_id = nuki.lock_ids[0]
+    nuki.post_lock(lock_id)
     print()
     
 async def test_async():
@@ -23,5 +25,5 @@ async def test_async():
     
 if __name__ == "__main__":
     test()
-    asyncio.run(test_async())
+    # asyncio.run(test_async())
     

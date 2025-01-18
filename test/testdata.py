@@ -52,7 +52,7 @@ async def generate_testdata():
     
     sleep(5) # wait for unlocking to finish
     
-    logs = await nuki.get_log(lock_id, limit=10)
+    logs = await nuki.get_logs(lock_id, limit=10)
     path_logs.write_text((json.dumps(logs,indent=2)))
     assert logs == logfile()
     
