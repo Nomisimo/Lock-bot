@@ -1,107 +1,58 @@
 # LH Lock Telegram Bot
 
-This project is a Python-based Telegram bot that integrates with the Nuki Smart Lock API to provide real-time updates and status information about your smart lock. The bot can send periodic lock status updates, battery statuses, and more directly to a specified Telegram chat.
+This project shall control the garage door of LautisHannover. It uses 
+- the Telegram-API to create a bot, that integrates with
+- the Nuki Smart Lock API to provide real-time updates and status information about your smart lock. 
 
-## Features
 
-- **Real-Time Lock Updates:** Receive lock action notifications (e.g., Locked, Unlocked, Unlatched) in your Telegram chat.
-- **Battery Status Monitoring:** Check the battery levels of your smart lock, keypad, and door sensor.
-- **Customizable Logging:** Enable or disable logs for different components.
-- **Periodic Updates:** Uses the APScheduler library to fetch lock status at regular intervals.
+## setup and run bot
+- install the package via pyproject toml:
+```
+pip install -e .
+```
+- update the config.cfg file in the directory accordingly:
+    - add API-Keys for NUKI and TELEGRAM
+    - add your telegram chat id to the [auth] section.
+    - (adjust logging levels for different python modules)
 
-## Requirements
-
-- Python 3.9+
-- Telegram bot token (from [BotFather](https://core.telegram.org/bots#botfather))
-- Nuki Smart Lock API token
-- Chat ID of the recipient for updates (can be obtained via the Telegram Bot API)
-
-## Installation
-
-1. **Clone the Repository:**
-    ```bash
-    git clone https://github.com/yourusername/nuki-lock-telegram-bot.git
-    cd nuki-lock-telegram-bot
-    ```
-
-2. **Install Dependencies:**
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-3. **Configure API Keys and IDs:**
-    Update the following constants in the script:
-    ```python
-    LOCK_ID = YOUR_LOCK_ID
-    Nuki_API_KEY = 'your-nuki-api-key'
-    TELEGRAM_API_KEY = 'your-telegram-bot-token'
-    CHAT_ID = your-telegram-chat-id
-    ```
-
-4. **Run the Bot:**
-    ```bash
-    python Lock-Bot.py
-    ```
-
-## Usage
-
-### Telegram Commands
-- `/start`: Initialize the bot and receive a welcome message.
-- `/Battery`: Get the current battery status of the lock, keypad, and door sensor.
-
-### Periodic Updates
-- The bot fetches and sends the lock status every 10 seconds by default. This interval can be adjusted in the script by modifying the `seconds` parameter in the scheduler job:
-  ```python
-  job = scheduler.add_job(send_status_update, 'interval', seconds=10, args=[application])
-  ```
-
-## Customization
-
-### Logging
-You can toggle logging for different categories by modifying the `LOGS_ENABLED` dictionary:
-```python
-LOGS_ENABLED = {
-    'general': True,
-    'battery': True,
-    'lock_status': True,
-}
+- run the bot. Inside the directory with the config.cfg:
+```
+python -m lockbot
+```
+or
+```
+lockbot
 ```
 
-### Action Descriptions
-Edit or add new action descriptions in the `ACTION_DESCRIPTIONS` dictionary:
-```python
-ACTION_DESCRIPTIONS = {
-    1: "Unlocked 🔓",
-    2: "Locked 🔒",
-    3: "Unlatch 🔑",
-    4: "Lock'n'Go 🔒💨",
-    5: "Lock'n'Go with Unlatch 🔒🔑💨",
-    6: "Unknown Action 6 ❓",
-    7: "Unknown Action 7 ❓",
-}
-```
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Bot Doesn't Respond:**
-   - Ensure the bot token and chat ID are correct.
-   - Check your internet connection.
-   - Verify that the bot is running and properly configured.
-
-2. **Failed API Requests:**
-   - Ensure the Nuki API key is valid.
-   - Check the lock ID and permissions for the API key.
-
-## Dependencies
-
-The script uses the following Python libraries:
-
-- `httpx`: For making asynchronous HTTP requests.
-- `python-telegram-bot`: For interacting with the Telegram Bot API.
-- `apscheduler`: For scheduling periodic tasks.
-- `asyncio`: For asynchronous programming.
+## Current features and Changelog
+- [x] lock and unlock: send the action to the smartlock
+- [x] battery: request info to display the battery status
+    - [x] display the battery info when starting the bot
+    - [ ] add 24h schedule for checking, whether the battery is critical
+- [x] status updates: send notifications, if the lock changes
+    - [x] periodically retrieve logs
+    - [x] check whether the log was viewed previously (by adding their ids to a deque)
+    - [x] send messages for new updates to the chat
+    - [x] pin a message with the current lock status
+        
+## Buglist and Roadmap
+- [ ] security- logic: 
+    - [ ] check if the door is closed before send lock signal
+    - [ ] if the door is open but lock closed: open the lock and send warning
+- [ ] keypad
+    - [ ] generate new keycodes
+    - [ ] set a limited time window for keycodes
+    - [ ] reset all keycodes (other than the default one used by us)
+    - [ ] build a dialog to request a keycode
+    - [ ] format a default text, that could be forwarded to other users
+    
+- [ ] request bot
+    - [ ] create a bot to make a request for LH-equipment.
+    - [ ] develop questionaire 
+    - [ ] send summary to LH account
+    - [ ] create a group with requester, bot and lh account
+    - [ ] create entry to google calender
+    - [ ] ...
 
 ## License
 

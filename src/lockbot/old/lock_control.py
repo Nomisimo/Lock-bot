@@ -1,8 +1,9 @@
 import httpx
-# from config import LOCK_ID, NUKI_API_KEY, CHAT_ID, log_message
+import logging
 
-import config
-from config import log_message
+from lockbot import config
+
+logger = logging.getLogger(__name__)
 
 # Define allowed chat IDs
 # ALLOWED_CHAT_IDS = {CHAT_ID}  # Use a set for efficient membership checking
@@ -14,7 +15,7 @@ def validate_chat_id(func):
 
         chat_id = update.effective_chat.id
         if chat_id not in ALLOWED_IDS:
-            log_message(f"Unauthorized access attempt from chat ID {chat_id}.", "security")
+            logger.info(f"Unauthorized access attempt from chat ID {chat_id}.")
             await update.message.reply_text("You are not authorized to use this bot.")
             return
         return await func(update, context, *args, **kwargs)
@@ -34,13 +35,13 @@ async def get_lock_logs():
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=headers)
             if response.status_code != 200:
-                log_message(f"Failed to fetch data from Nuki API. Status code: {response.status_code}", 'lock_status')
+                logger.error(f"Failed to fetch data from Nuki API. Status code: {response.status_code}")
                 return None
             data = response.json()
-            log_message(f"Full response from Nuki API: {data}", 'lock_status')
+            logger.info(f"Full response from Nuki API: {data}")
             return data
     except Exception as e:
-        log_message(f"Failed to fetch lock logs: {e}", 'lock_status')
+        logger.error(f"Failed to fetch lock logs: {e}")
         return None
 
 
@@ -71,14 +72,14 @@ async def send_lock_action(action, update=None, context=None):
         else:
             message = f"Unexpected error: {response.status_code}. Please try again. ❌"
 
-        log_message(f"API Response: {response.status_code} - {response.text}", "lock_status")
+        logger.info(f"API Response: {response.status_code} - {response.text}")
 
         if update and context:
             await update.message.reply_text(message)
         return response.status_code == 204
 
     except Exception as e:
-        log_message(f"Error sending lock action: {e}", "lock_status")
+        logger.error(f"Error sending lock action: {e}")
         if update and context:
             await update.message.reply_text("An error occurred while processing the request. Please try again later.")
         return False
@@ -98,13 +99,13 @@ async def get_battery_status():
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=headers)
             if response.status_code != 200:
-                log_message(f"Failed to fetch battery data. Status code: {response.status_code}", 'battery')
+                logger.error(f"Failed to fetch battery data. Status code: {response.status_code}")
                 return None
             data = response.json()
-            log_message(f"Full response from Nuki API: {data}", 'battery')
+            logger.info(f"Full response from Nuki API: {data}")
             return data
     except Exception as e:
-        log_message(f"Failed to fetch battery data: {e}", 'battery')
+        logger.error(f"Failed to fetch battery data: {e}")
         return None
 
 
@@ -112,16 +113,14 @@ async def get_battery_status():
 @validate_chat_id
 async def lock_command(update, context):
     success = await send_lock_action("lock", update, context)
-    log_message(
+    logger.info(
         "Lock command executed successfully." if success else "Lock command failed.",
-        "lock_status",
     )
 
 # Command to unlock the door
 @validate_chat_id
 async def unlock_command(update, context):
     success = await send_lock_action("unlock", update, context)
-    log_message(
+    logger.info(
         "Unlock command executed successfully." if success else "Unlock command failed.",
-        "lock_status",
     )

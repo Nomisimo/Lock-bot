@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "lockbot"
-version = "0.1"
+version = "0.2"
 description = "control the door"
 #long_description = file: src/README_package.md
 #long_description_content_type = text/markdown
@@ -24,7 +24,7 @@ dev = [
 ]
 
 [project.scripts]
-#lockbot = "lockbot.cli:main"
+lockbot = "lockbot.__main__:main"
 
 [tool.setuptools.packages.find]
 where = ["src/"]
