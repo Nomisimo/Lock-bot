@@ -6,7 +6,7 @@ Created on Sun Jan  5 23:43:06 2025
 """
 from enum import Enum
 
-# from https://api.nuki.io/#/Smartlock/SmartlockResource_get_get
+# from https://api.nuki.io/#/Smartlock
 # from https://api.nuki.io/#/SmartlockLog
 
 class DEVICE_TYPE(Enum):

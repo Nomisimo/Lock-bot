@@ -19,7 +19,7 @@ assert path_data.exists(), f"{path_data.resolve()} doesnt exists"
 path_lock = path_data.joinpath("data_state_locked.json")
 path_unlock = path_data.joinpath("data_state_unlocked.json")
 path_logs = path_data.joinpath("data_logs.json")
-
+path_auths = path_data.joinpath("data_auths.json")
 
 def status_locked():
     return json.loads(path_lock.read_text())    
@@ -29,6 +29,9 @@ def status_unlocked():
 
 def logfile():
     return json.loads(path_logs.read_text())    
+
+def auths():
+    return json.loads(path_auths.read_text())
 
 from time import sleep
 
@@ -55,6 +58,12 @@ async def generate_testdata():
     logs = await nuki.get_logs(lock_id, limit=10)
     path_logs.write_text((json.dumps(logs,indent=2)))
     assert logs == logfile()
+    
+    data = await nuki.get_auth()
+    path_auths.write_text(json.dumps(data, indent=2))
+    assert data == auths()
+    
+    
     
     print("finished, testdata generated.")
 

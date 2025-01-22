@@ -91,6 +91,11 @@ class Nuki():
         ids = [d["smartlockId"] for d in data]
         return ids
     
+    def get_auth(self, lock_id=None, auth_id=None):
+        url = urls.url_auth(lock_id, auth_id)
+        data = self.get_request(url)
+        return data
+    
     def set_default_lock(self, lock_id):
         if lock_id in self.lock_ids:
             self.default_id = lock_id
@@ -136,6 +141,11 @@ class AsyncNuki(Nuki):
         
     async def get_logs(self, lock_id=None, limit=5) -> list:
         url = urls.url_log(lock_id=lock_id, limit=limit)
+        data = await self.get_request(url)
+        return data
+    
+    async def get_auth(self, lock_id=None, auth_id=None):
+        url = urls.url_auth(lock_id, auth_id)
         data = await self.get_request(url)
         return data
 
