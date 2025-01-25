@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Jan  6 21:37:38 2025
+Parse json data.
 
 @author: kolja
 """

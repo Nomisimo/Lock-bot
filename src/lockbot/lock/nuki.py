@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Jan  6 22:03:59 2025
+Classes to handle requests to the NUKI API
 
 @author: kolja
 """
@@ -8,7 +8,6 @@ import logging
 import http
 import httpx
 from lockbot import config
-
 
 from lockbot.lock import urls
 logger = logging.getLogger(__name__)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sun Jan  5 23:43:06 2025
+Define enums to parse integers in datastructures.
 
 @author: kolja
 """

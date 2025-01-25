@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sun Jan  5 23:42:54 2025
+Define the url scheme of the NUKI API
 
 @author: kolja
 """
