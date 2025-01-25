@@ -20,8 +20,8 @@ logger = logging.getLogger(__name__)
 
 def load_config(path=None) -> ConfigParser:
     global PATH_CONFIG, CONFIG
-    if path is not None and path.exists():
-        PATH_CONFIG = path
+    if path is not None and Path(path).exists():
+        PATH_CONFIG = Path(path)
 
     if not PATH_CONFIG.exists():
         assert PATH_TEMPLATE.exists()
@@ -73,12 +73,21 @@ def get_authorized():
         raise ConfigError("the config is not loaded.")
     return {int(key) for key, val in CONFIG["auth"].items() if val == "True"}
 
+def get_path(section, option, fallback=sentinel):
+    """ Adding pathlib.Path to get function.
+    """
+    val = get(section, option, fallback)
+    path = Path(val).resolve()
+    if not path.exists():
+        raise ConfigError(f"The {path=} doesnt exists. Defined at [{section}] {option}")
+    return path
 
 def _test_config():
     load_config()
     update_loglevels()
     test_logger()
-    # show_config()
+    show_config()
+    # get_path("dev", "path_data")
     
 
 if __name__ == "__main__":

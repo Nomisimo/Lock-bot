@@ -158,7 +158,7 @@ class AsyncNuki(Nuki):
             return data
         return [model.LogEntry(**d) for d in data]
     
-    async def get_auth(self, lock_id=None, auth_id=None):
+    async def get_auth(self, lock_id=None, auth_id=None, raw: bool=False):
         url = urls.url_auth(lock_id, auth_id)
         data = await self.get_request(url)
         return data

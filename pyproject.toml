@@ -32,3 +32,14 @@ where = ["src/"]
 include = ["lockbot"]
 
 
+[tool.pytest.ini_options]
+#addopts = "--cov=src/lockbot"
+testpaths = [
+    "tests",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning"
+]
+
+[tool.coverage.run]
+omit = [ ]
