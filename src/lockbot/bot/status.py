@@ -85,9 +85,9 @@ async def update_status_message(context: ContextTypes.DEFAULT_TYPE) -> None:
         logs = await get_log_from_context(context, n=3)
         for log in reversed(logs):
             new_text = message.log(log, user=chat.username)
-            if log["id"] in context.bot_data["logs"]:
+            if log.id in context.bot_data["logs"]:
                 continue
-            context.bot_data["logs"].append(log["id"])
+            context.bot_data["logs"].append(log.id)
             await context.bot.sendMessage(chat_id, new_text)
         
         # update pinned status message
