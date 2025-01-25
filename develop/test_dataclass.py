@@ -15,7 +15,7 @@ from pprint import pprint
 
     
     
-from lockbot.lock.model import LogEntry, SmartlockState, Smartlock
+from lockbot.lock.model import LogEntry, SmartlockState, Smartlock, SmartlockAuth
     
 def compare_dicts(src, dst):
     for k in (set(src) | set(dst)):
@@ -52,11 +52,11 @@ def test_smartlock_conversion():
     compare_dicts(state, Smartlock(**state).to_json())
     print("finished log comparison")
         
-# def test_smartlock_auth():
-#     auths = testdata.auths()
-#     for auth in auths:
-#         pprint(SmartlockAuth(**auth))
-#         compare_dicts(auth, SmartlockAuth(**auth).to_json())
+def test_smartlock_auth():
+    auths = testdata.auths()
+    for auth in auths:
+        # pprint(SmartlockAuth(**auth))
+        compare_dicts(auth, SmartlockAuth(**auth).to_json())
         
 
 
@@ -64,4 +64,4 @@ if __name__ == "__main__":
     test_log_conversion()
     test_state_conversion()
     test_smartlock_conversion()
-    # test_smartlock_auth()
+    test_smartlock_auth()

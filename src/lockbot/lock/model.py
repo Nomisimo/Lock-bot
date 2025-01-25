@@ -153,51 +153,50 @@ class Smartlock:
         res["state"] = convert_to_json(self.state)
         return res
     
-    
 
-# @dataclass
-# class SmartlockAuth:
-#     id:             str
-#     smartlockId:    str
-#     type:           int # ToDo: create const.AUTH_TYPE
-#     name:           str
-#     enabled:        bool
-#     remoteAllowed:  bool
-#     lockCount:      int
+@dataclass
+class SmartlockAuth:
+    id:             str
+    smartlockId:    str
+    type:           int # ToDo: create const.AUTH_TYPE
+    name:           str
+    enabled:        bool
+    remoteAllowed:  bool
+    lockCount:      int
     
-#     accountUserId:  int = None
-#     authId:         int = None
-#     code:           int = None
-#     fingerprints:   dict = None
+    accountUserId:  int = None
+    authId:         int = None
+    code:           int = None
+    fingerprints:   dict = None
     
-#     allowedFromDate	: datetime = None
-#     allowedUntilDate: datetime = None
-#     allowedWeekDays:    int = None
-#     allowedFromTime	:    int = None
-#     allowedUntilTime:   int = None
-#     lastActiveDate: datetime = None
-#     creationDate:   datetime = None
-#     updateDate:     datetime = None
-#     operationId:    dict = None
-#     error:          str = None
-#     appId:          str = None
-#     authTypeAsString: str = None
+    allowedFromDate	: datetime = None
+    allowedUntilDate: datetime = None
+    allowedWeekDays:    int = None
+    allowedFromTime	:    int = None
+    allowedUntilTime:   int = None
+    lastActiveDate: datetime = None
+    creationDate:   datetime = None
+    updateDate:     datetime = None
+    operationId:    dict = None
+    error:          str = None
+    appId:          str = None
+    authTypeAsString: str = None
     
     
-#     def __post_init__(self):
-#         self.allowedFromDate = (datetime.fromisoformat(self.allowedFromDate) 
-#                                 if self.allowedFromDate is not None else None)
-#         self.allowedUntilDate = (datetime.fromisoformat(self.allowedUntilDate) 
-#                                  if self.allowedUntilDate is not None else None)
-#         self.creationDate = (datetime.fromisoformat(self.creationDate) 
-#                              if self.creationDate is not None else None)
-#         self.updateDate = (datetime.fromisoformat(self.updateDate) 
-#                            if self.updateDate is not None else None)
-#         self.lastActiveDate = (datetime.fromisoformat(self.lastActiveDate) 
-#                                if self.lastActiveDate is not None else None)
+    def __post_init__(self):
+        self.allowedFromDate = (datetime.fromisoformat(self.allowedFromDate) 
+                                if self.allowedFromDate is not None else None)
+        self.allowedUntilDate = (datetime.fromisoformat(self.allowedUntilDate) 
+                                  if self.allowedUntilDate is not None else None)
+        self.creationDate = (datetime.fromisoformat(self.creationDate) 
+                              if self.creationDate is not None else None)
+        self.updateDate = (datetime.fromisoformat(self.updateDate) 
+                            if self.updateDate is not None else None)
+        self.lastActiveDate = (datetime.fromisoformat(self.lastActiveDate) 
+                                if self.lastActiveDate is not None else None)
     
-#     def to_json(self):
+    def to_json(self):
             
-#         res = convert_to_json(self)
-#         return res
+        res = convert_to_json(self)
+        return res
     

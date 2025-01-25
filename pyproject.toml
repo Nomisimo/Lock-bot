@@ -21,6 +21,7 @@ dependencies = [
 doc = [
 ]
 dev = [
+    "pytest"
 ]
 
 [project.scripts]
@@ -29,3 +30,5 @@ lockbot = "lockbot.__main__:main"
 [tool.setuptools.packages.find]
 where = ["src/"]
 include = ["lockbot"]
+
+
