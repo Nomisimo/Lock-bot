@@ -10,6 +10,7 @@ import httpx
 from lockbot import config
 
 from lockbot.lock import urls
+from lockbot.lock import model
 logger = logging.getLogger(__name__)
 
 
@@ -65,16 +66,27 @@ class Nuki():
             logger.error(f"Error sending lock action: {e}")
             return False
         
-    def get_smartlock(self, lock_id=None) -> list | dict:
+    def get_smartlock(self, lock_id=None, raw: bool=False) -> list[model.Smartlock] | model.Smartlock:
         url = urls.url_status(lock_id=lock_id)
         data = self.get_request(url)
-        return data
+        if raw:
+            return data
+        if isinstance(data, list):
+            return [model.Smartlock(**d) for d in data]
+        return model.Smartlock(**data)
         
-    def get_logs(self, lock_id=None, limit=5) -> list:
+    def get_logs(self, lock_id=None, limit=5, raw: bool=False) -> list[model.LogEntry]:
         url = urls.url_log(lock_id=lock_id, limit=limit)
         data = self.get_request(url)
-        return data
+        if raw:
+            return data
+        return [model.LogEntry(**d) for d in data]
 
+    def get_auth(self, lock_id=None, auth_id=None, raw: bool=False):
+        url = urls.url_auth(lock_id, auth_id)
+        data = self.get_request(url)
+        return data
+    
     def post_lock(self, lock_id) -> bool:
         url = urls.url_action(lock_id, action="lock")
         success = self.post_request(url)
@@ -87,13 +99,10 @@ class Nuki():
     
     def get_smartlock_ids(self) -> list[int]:
         data = self.get_smartlock(lock_id=None)
-        ids = [d["smartlockId"] for d in data]
+        ids = [d.smartlockId for d in data]
         return ids
     
-    def get_auth(self, lock_id=None, auth_id=None):
-        url = urls.url_auth(lock_id, auth_id)
-        data = self.get_request(url)
-        return data
+
     
     def set_default_lock(self, lock_id):
         if lock_id in self.lock_ids:
@@ -133,15 +142,21 @@ class AsyncNuki(Nuki):
             logger.error(f"Error sending lock action: {e}")
             return False
         
-    async def get_smartlock(self, lock_id=None) -> list | dict:
+    async def get_smartlock(self, lock_id=None, raw: bool=False) -> list[model.Smartlock] | model.Smartlock:
         url = urls.url_status(lock_id=lock_id)
         data = await self.get_request(url)
-        return data
-        
-    async def get_logs(self, lock_id=None, limit=5) -> list:
+        if raw:
+            return data
+        if isinstance(data, list):
+            return [model.Smartlock(**d) for d in data]
+        return model.Smartlock(**data)     
+    
+    async def get_logs(self, lock_id=None, limit=5, raw: bool = False) -> list[model.LogEntry]:
         url = urls.url_log(lock_id=lock_id, limit=limit)
         data = await self.get_request(url)
-        return data
+        if raw:
+            return data
+        return [model.LogEntry(**d) for d in data]
     
     async def get_auth(self, lock_id=None, auth_id=None):
         url = urls.url_auth(lock_id, auth_id)
@@ -160,6 +175,6 @@ class AsyncNuki(Nuki):
     
     async def get_smartlock_ids(self) -> list[int]:
         data = await self.get_smartlock(lock_id=None)
-        ids = [d["smartlockId"] for d in data]
+        ids = [d.smartlockId for d in data]
         return ids
     

@@ -6,23 +6,24 @@ Created on Mon Jan  6 22:12:08 2025
 """
 import asyncio 
 import logging
+from pprint import pprint
+
 from lockbot import config
 from lockbot import Nuki, AsyncNuki
+from lockbot.lock.model import LogEntry
         
 def test():
     logging.info("syncronous")    
     config.load_config()
     nuki = Nuki.new()
     lock_id = nuki.lock_ids[0]
-    nuki.post_lock(lock_id)
+    # nuki.post_lock(lock_id)
+    res = nuki.get_logs(lock_id)
+    pprint(res)
+    
     print()
     
-async def test_async():
-    logging.info("async")
-    config.load_config()
-    nuki = await AsyncNuki.new()
-    print()
-    
+
 if __name__ == "__main__":
     test()
     # asyncio.run(test_async())

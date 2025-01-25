@@ -42,24 +42,24 @@ async def generate_testdata():
     assert lock_id
     
     await nuki.post_lock(lock_id)
-    status = await nuki.get_smartlock(lock_id)
+    status = await nuki.get_smartlock(lock_id, raw=True)
     path_lock.write_text(json.dumps(status, indent=2))
     assert status == status_locked()
     
     sleep(5) #  wait for locking to finish
     
     await nuki.post_unlock(lock_id)
-    status = await nuki.get_smartlock(lock_id)
+    status = await nuki.get_smartlock(lock_id, raw=True)
     path_unlock.write_text(json.dumps(status, indent=2))
     assert status == status_unlocked()
     
     sleep(5) # wait for unlocking to finish
     
-    logs = await nuki.get_logs(lock_id, limit=10)
+    logs = await nuki.get_logs(lock_id, limit=10, raw=True)
     path_logs.write_text((json.dumps(logs,indent=2)))
     assert logs == logfile()
     
-    data = await nuki.get_auth()
+    data = await nuki.get_auth(raw=True)
     path_auths.write_text(json.dumps(data, indent=2))
     assert data == auths()
     

@@ -3,7 +3,10 @@
 Define model representations for the nuki api.
 
 Implemented models:
-    - 
+    - SmartlockLog => LogEntry
+    - Smartlock => Smartlock
+    - Smartlock.State => SmartlockState
+    - SmartlockAuth => SmartlockAuth
 
 @author: kolja
 """
