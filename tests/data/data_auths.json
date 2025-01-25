@@ -1,0 +1,72 @@
+[
+  {
+    "id": "6769709cc9364321bdec84d7",
+    "smartlockId": 17968122341,
+    "authId": 3431655,
+    "type": 0,
+    "name": "Lock Bot \ud83e\udd16",
+    "enabled": true,
+    "remoteAllowed": true,
+    "lockCount": 79,
+    "lastActiveDate": "2025-01-18T21:29:27.000Z",
+    "creationDate": "2024-12-23T14:15:29.000Z",
+    "updateDate": "2025-01-19T02:07:36.570Z",
+    "appId": 0
+  },
+  {
+    "id": "6769709cc9364321bdec84e0",
+    "smartlockId": 17968122341,
+    "authId": 3431645,
+    "type": 0,
+    "name": "LH Momo",
+    "enabled": true,
+    "remoteAllowed": true,
+    "lockCount": 98,
+    "lastActiveDate": "2025-01-18T23:34:56.000Z",
+    "creationDate": "2023-01-01T00:01:31.000Z",
+    "updateDate": "2025-01-19T02:07:36.588Z",
+    "appId": 0
+  },
+  {
+    "id": "6769709cc9364321bdec84f2",
+    "smartlockId": 17968122341,
+    "authId": 3431654,
+    "type": 0,
+    "name": "LH Rudi ",
+    "enabled": true,
+    "remoteAllowed": true,
+    "lockCount": 6,
+    "lastActiveDate": "2025-01-15T12:02:16.000Z",
+    "creationDate": "2024-12-20T21:26:13.000Z",
+    "updateDate": "2025-01-19T02:07:36.600Z",
+    "appId": 0
+  },
+  {
+    "id": "6769709cc9364321bdec84f9",
+    "smartlockId": 17968122341,
+    "authId": 3431647,
+    "type": 3,
+    "name": "Keypad",
+    "enabled": true,
+    "remoteAllowed": false,
+    "lockCount": 54,
+    "lastActiveDate": "2025-01-18T18:37:23.000Z",
+    "creationDate": "2024-12-15T15:48:32.000Z",
+    "updateDate": "2025-01-19T02:07:36.574Z",
+    "appId": 0
+  },
+  {
+    "id": "6769709ec9364321bdec8a17",
+    "smartlockId": 17968122341,
+    "authId": 1,
+    "code": 186262,
+    "type": 13,
+    "name": "LH Member",
+    "enabled": true,
+    "remoteAllowed": false,
+    "lockCount": 34,
+    "lastActiveDate": "2025-01-18T18:37:05.000Z",
+    "creationDate": "2024-12-15T15:49:24.000Z",
+    "updateDate": "2025-01-19T02:07:37.661Z"
+  }
+]
