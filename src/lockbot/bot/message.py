@@ -7,8 +7,8 @@ Created on Tue Jan  7 00:06:26 2025
 from datetime import datetime
 
 from lockbot.lock.const import LOG_STATE, DOOR_STATE, ACTION
-from lockbot.lock import parse
-
+from lockbot.lock import model
+# from lockbot
 
 def timestamp():
     return datetime.now().strftime("%T")
@@ -17,14 +17,13 @@ def timestamp():
 def emoji_battery(critical=False):
     return '🪫' if critical else '🔋'
 
-def battery(data: dict):
-    status = parse.state(data)
+def battery(state = model.Smartlock):
     msg = (
         f"battery status:\n"
-        f"- lock   {emoji_battery(status['batteryCritical'])}({status['batteryCharge']}%)\n"
-        f"- keypad {emoji_battery(status['keypadBatteryCritical'])}\n "
-        f"- sensor {emoji_battery(status['doorsensorBatteryCritical'])}\n"
-        f"(checked: {status['updateDate'].strftime('%T')})"
+        f"- lock   {emoji_battery(state.state.batteryCritical)}({state.state.batteryCharge}%)\n"
+        f"- keypad {emoji_battery(state.state.keypadBatteryCritical)}\n "
+        f"- sensor {emoji_battery(state.state.doorsensorBatteryCritical)}\n"
+        f"(checked: {state.updateDate.strftime('%T')})"
         )
     return msg
 
@@ -38,13 +37,13 @@ def emoji_action(state: LOG_STATE, action: ACTION):
         return "🔓"
     return "❔"
 
-def log(data: dict, user="lockbot"):
+def log(data: model.LogEntry, user="lockbot"):
     """ data = single log, user = telegram effective_user.username."""
-    l = parse.log(data)
-    time = l['date'].strftime('%T')
-    user = user if l["name"] == "Lock Bot 🤖" else l["trigger"].name
-    action = emoji_action(l["state"], l["action"]) + l["action"].name
+    
+    time = data.date.strftime('%T')
+    user = user if data.name == "Lock Bot 🤖" else data.trigger.name
+    action = emoji_action(data.state, data.action) + data.action.name
     msg = f"[{time}]\n{action} by {user}"
-    if (state := l["state"]) != LOG_STATE.success:
+    if (state := data.state) != LOG_STATE.success:
         msg +=f"\n {state.name}"
     return msg

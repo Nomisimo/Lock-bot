@@ -14,7 +14,7 @@ from lockbot import config
 from lockbot.lock import AsyncNuki
 
 
-path_data = Path("data")
+path_data = Path(__file__).with_name("data")
 assert path_data.exists(), f"{path_data.resolve()} doesnt exists"
 path_lock = path_data.joinpath("data_state_locked.json")
 path_unlock = path_data.joinpath("data_state_unlocked.json")

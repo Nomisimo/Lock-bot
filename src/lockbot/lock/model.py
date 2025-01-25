@@ -14,9 +14,9 @@ from dataclasses import dataclass, asdict
 from datetime import datetime
 from enum import Enum
 
-
+import pytz
 from . import const
-
+tz_local = pytz.timezone("Europe/Berlin")
 
 def convert_to_json(da: object) -> dict:
     """ convert dataclass back to original json dict."""
@@ -25,6 +25,7 @@ def convert_to_json(da: object) -> dict:
         if isinstance(v, Enum):
             res[k] = v.value
         if isinstance(v, datetime):
+            v = v.astimezone(pytz.utc)
             res[k] = v.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
             
     # sort out not set optional values
@@ -61,7 +62,7 @@ class LogEntry:
         self.state = const.LOG_STATE(self.state)
         self.trigger = const.TRIGGER(self.trigger)
         
-        self.date = datetime.fromisoformat(self.date)        
+        self.date = datetime.fromisoformat(self.date).astimezone(tz_local)        
     
     def to_json(self):
         """ convert back to json-dict to be send to api."""
