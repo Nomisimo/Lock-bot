@@ -23,6 +23,19 @@ or
 ```
 lockbot
 ```
+### development
+- install the package with optional dependencies
+```
+pip install -e .[dev]
+```
+- you can download some testdata from the API. This will be saved in "tests/data".
+```
+lockbot --testdata
+```
+- you can run pytest from the main directory. This will run the tests defined within the tests subdirectory.
+```
+pytest
+```
 
 ## Current features and Changelog
 - [x] lock and unlock: send the action to the smartlock
