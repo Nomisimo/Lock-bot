@@ -14,7 +14,7 @@ from lockbot.lock.model import LogEntry
         
 def test():
     logging.info("syncronous")    
-    config.load_config()
+    config.load_config("config_dev.cfg")
     nuki = Nuki.new()
     lock_id = nuki.lock_ids[0]
     # nuki.post_lock(lock_id)
@@ -26,5 +26,4 @@ def test():
 
 if __name__ == "__main__":
     test()
-    # asyncio.run(test_async())
     

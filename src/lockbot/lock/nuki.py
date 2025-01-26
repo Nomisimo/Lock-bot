@@ -41,9 +41,10 @@ class Nuki():
     @staticmethod    
     def handle_http_status(status):
         code = http.HTTPStatus(status)
-        if not code.is_success:
+        success = (200 <= code <= 299)
+        if not success:
             logger.error(code.description)
-        return code.is_success  
+        return success # code.is_success  
 
     def get_request(self, url):
         try: 

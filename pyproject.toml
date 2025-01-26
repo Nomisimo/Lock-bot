@@ -15,6 +15,7 @@ dependencies = [
     "httpx >= 0.24",
     "python-telegram-bot >= 20.3",
     "apscheduler >= 3.10",
+    "pytz"
 ]
 
 [project.optional-dependencies]
