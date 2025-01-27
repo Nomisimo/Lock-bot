@@ -10,7 +10,7 @@ description = "control the door"
 #long_description = file: src/README_package.md
 #long_description_content_type = text/markdown
 authors = [{name = "Lautis Hannover", email = "hallo@lautis-hannover.de"}]
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 dependencies = [
     "httpx >= 0.24",
     "python-telegram-bot >= 20.3",
