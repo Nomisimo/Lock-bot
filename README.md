@@ -23,6 +23,8 @@ or
 ```
 lockbot
 ```
+You can use the "-h" flag to show the help page.
+
 ### development
 - install the package with optional dependencies
 ```
@@ -30,11 +32,19 @@ pip install -e .[dev]
 ```
 - you can download some testdata from the API. This will be saved in "tests/data".
 ```
-lockbot --testdata
+lockbot testdata
 ```
 - you can run pytest from the main directory. This will run the tests defined within the tests subdirectory.
 ```
 pytest
+```
+- to test the webhook a tool "testhook" can be called. Use -h to show the help page.
+```
+lockbot testhook
+```
+- to test the flask app receiving the webhook calls use the tool "testflask".
+```
+lockbot testflask
 ```
 
 ## Current features and Changelog
