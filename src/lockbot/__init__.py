@@ -4,6 +4,7 @@ Created on Thu Jan  2 23:00:50 2025
 
 @author: kolja, momo
 """
+__version__ = 0.3
 
 
 from . import config
