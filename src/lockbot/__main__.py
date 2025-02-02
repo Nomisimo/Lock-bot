@@ -12,6 +12,7 @@ import logging
 
 
 from lockbot import config, create_app
+from lockbot.hook import receiver
 from lockbot.tool import testdata, testhook
 
 logger = logging.getLogger("lockbot")
@@ -64,6 +65,18 @@ def run_testhook(path_config: Path, n=None, timeout=None):
         pass
     logger.info("finished, logs send.")
 
+def setup_testflask(subparsers):
+    parser = subparsers.add_parser("testflask", help="run flask to receive webhook calls.")
+    
+    parser.set_defaults(func="testflask")
+    
+def run_testflask(path_config: Path):
+    config.load_config(path=path_config)
+    logger.info("starting flask in debug environment")
+    url = config.get("hook", "URL_RECEIVE")
+    host, port = url.split("/")[2].split(":")
+    receiver.app.run(host=host, port=port)
+
 def main():
     """Main function to load config and start the bot."""
     greet()
@@ -78,6 +91,7 @@ def main():
     subparsers = parser.add_subparsers(title="tools", help=None)
     setup_testdata(subparsers)
     setup_testhook(subparsers)
+    setup_testflask(subparsers)
 
     args = parser.parse_args()
     
@@ -90,13 +104,15 @@ def main():
             run_testdata(path_config, state=args.state, logs=args.logs, auths=args.auths)
         else:
             run_testdata(path_config)
-            
         return
     if args.func == "testhook":
-        print(args)
         run_testhook(path_config, n=args.total, timeout=args.time)
         return
-    
+    if args.func == "testflask":
+        run_testflask(path_config)
+        return
+        
+        
     run_app(path_config)
     
 

@@ -45,8 +45,8 @@ def send_webhook(msg):
         pass
     else:
         return resp.status_code
-    
-    
+
+
 def generate_test_logs(n: int=10, timeout: int=1):
     """
     Generate a Bunch of Fake Tasks
