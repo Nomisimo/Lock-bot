@@ -31,7 +31,6 @@ def load_status(version="lock"):
 
 def load_logfile():
     path_logs = path_data(name_logs)
-    print(path_logs)
     return json.loads(path_logs.read_text())    
 
 def load_auths():
@@ -39,32 +38,38 @@ def load_auths():
     return json.loads(path_auths.read_text())
 
 
-async def generate():
+async def generate(state: bool=True, logs: bool=True, auths: bool = True):
     nuki = await AsyncNuki.new()
     lock_id = nuki.lock_ids[0]
     assert lock_id
     
-    await nuki.post_lock(lock_id)
-    status = await nuki.get_smartlock(lock_id, raw=True)
-    path_data(name_lock).write_text(json.dumps(status, indent=2))
-    assert status == load_status("lock")
     
-    sleep(5) #  wait for locking to finish
+    if state:
+        await nuki.post_lock(lock_id)
+        status = await nuki.get_smartlock(lock_id, raw=True)
+        path_data(name_lock).write_text(json.dumps(status, indent=2))
+        assert status == load_status("lock")
+        print(path_data(name_lock))
+        sleep(5) #  wait for locking to finish
+        
+        await nuki.post_unlock(lock_id)
+        status = await nuki.get_smartlock(lock_id, raw=True)
+        path_data(name_unlock).write_text(json.dumps(status, indent=2))
+        assert status == load_status("unlock")
+        print(path_data(name_unlock))
+        sleep(5) # wait for unlocking to finish
     
-    await nuki.post_unlock(lock_id)
-    status = await nuki.get_smartlock(lock_id, raw=True)
-    path_data(name_unlock).write_text(json.dumps(status, indent=2))
-    assert status == load_status("unlock")
+    if logs:
+        logs = await nuki.get_logs(lock_id, limit=100, raw=True)
+        path_data(name_logs).write_text((json.dumps(logs,indent=2)))
+        assert logs == load_logfile()
+        print(path_data(name_logs))
     
-    sleep(5) # wait for unlocking to finish
-    
-    logs = await nuki.get_logs(lock_id, limit=10, raw=True)
-    path_data(name_logs).write_text((json.dumps(logs,indent=2)))
-    assert logs == load_logfile()
-    
-    data = await nuki.get_auth(raw=True)
-    path_data(name_auths).write_text(json.dumps(data, indent=2))
-    assert data == load_auths()
+    if auths:
+        data = await nuki.get_auth(raw=True)
+        path_data(name_auths).write_text(json.dumps(data, indent=2))
+        assert data == load_auths()
+        print(path_data(name_auths))
     
     
     

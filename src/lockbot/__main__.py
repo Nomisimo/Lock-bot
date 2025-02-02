@@ -43,16 +43,28 @@ def main():
         description="The LautisHannover smartlock-control-bot.", 
         )
     parser.add_argument("-c", "--config", help="file path of config object", default="config.cfg")
-    # parser.add_argument("--testdata", help="generate testdata",
-    parser.add_argument("--testdata",  help="generate testdata", default=False, action='store_true')
+    parser.set_defaults(func="main")
+
+    subparsers = parser.add_subparsers(title="tools", help=None)
+    parser_testdata = subparsers.add_parser("testdata", help="generate testdata via API calls.")
+    parser_testdata.add_argument("-s", "--state", help="generate state data", default=False, action="store_true")
+    parser_testdata.add_argument("-l", "--logs", help="generate log data", default=False, action="store_true")
+    parser_testdata.add_argument("-a", "--auths", help="generate auth data", default=False, action="store_true")
+    parser_testdata.set_defaults(func="testdata")
+
 
     args = parser.parse_args()
+    
     path_config = Path(args.config)
     if path_config.is_dir():
         path_config /= "config.cfg"
 
-    if args.testdata:
-        run_testdata(path_config)
+    if args.func == "testdata":
+        if any([args.state, args.logs, args.auths]):
+            run_testdata(path_config, state=args.state, logs=args.logs, auths=args.auths)
+        else:
+            run_testdata(path_config)
+            
         return
     
     
