@@ -12,7 +12,7 @@ import logging
 
 
 from lockbot import config, create_app
-from lockbot.tool import testdata
+from lockbot.tool import testdata, testhook
 
 logger = logging.getLogger("lockbot")
 
@@ -28,11 +28,41 @@ def run_app(path_config: Path):
                      nuki= config.get("nuki", "api_key")
                      )
     app.run_polling()
+
+
+def setup_testdata(subparsers):
+    parser = subparsers.add_parser("testdata", help="generate testdata via API calls.")
+    parser.add_argument("-s", "--state", help="generate state data", default=False, action="store_true")
+    parser.add_argument("-l", "--logs", help="generate log data", default=False, action="store_true")
+    parser.add_argument("-a", "--auths", help="generate auth data", default=False, action="store_true")
+    parser.set_defaults(func="testdata")
+    return parser
     
+
 def run_testdata(path_config: Path):
     config.load_config(path=path_config)
     asyncio.run(testdata.generate())
     logger.info("finished, testdata generated.")
+    
+    
+def setup_testhook(subparsers):
+    parser = subparsers.add_parser("testhook", help="generate testcalls to webhook.")
+    parser.add_argument("-t", "--time", help="timeout between requests.", type=int)
+    parser.add_argument("-n", "--total", help="number of requests.", type=int)
+    parser.set_defaults(func="testhook")
+    return parser
+
+
+def run_testhook(path_config: Path, n=None, timeout=None):
+    config.load_config(path=path_config)
+    logger.info("started, sending logs to webhook.")
+    n = n or config.get("dev", "testhook_total", fallback=10)
+    timeout = timeout or  config.get("dev", "testhook_timeout", fallback=1)
+
+    testhook.logger.setLevel(logging.DEBUG)
+    for resp, total, msg in testhook.generate_test_logs():
+        pass
+    logger.info("finished, logs send.")
 
 def main():
     """Main function to load config and start the bot."""
@@ -46,12 +76,8 @@ def main():
     parser.set_defaults(func="main")
 
     subparsers = parser.add_subparsers(title="tools", help=None)
-    parser_testdata = subparsers.add_parser("testdata", help="generate testdata via API calls.")
-    parser_testdata.add_argument("-s", "--state", help="generate state data", default=False, action="store_true")
-    parser_testdata.add_argument("-l", "--logs", help="generate log data", default=False, action="store_true")
-    parser_testdata.add_argument("-a", "--auths", help="generate auth data", default=False, action="store_true")
-    parser_testdata.set_defaults(func="testdata")
-
+    setup_testdata(subparsers)
+    setup_testhook(subparsers)
 
     args = parser.parse_args()
     
@@ -66,7 +92,10 @@ def main():
             run_testdata(path_config)
             
         return
-    
+    if args.func == "testhook":
+        print(args)
+        run_testhook(path_config, n=args.total, timeout=args.time)
+        return
     
     run_app(path_config)
     
