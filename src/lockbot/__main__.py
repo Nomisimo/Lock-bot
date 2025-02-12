@@ -9,6 +9,8 @@ import argparse
 from pathlib import Path
 import asyncio
 import logging
+import getpass
+
 
 
 from lockbot import config, create_app
@@ -19,7 +21,7 @@ logger = logging.getLogger("lockbot")
 
 def greet():
     """Display a greeting to the user."""
-    user = os.getlogin()
+    user = getpass.getuser()  # Ändere hier
     logger.info(f"Hello {user}, lockbot is installed.")
 
 def run_app(path_config: Path):
