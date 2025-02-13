@@ -94,27 +94,28 @@ class ACTION(Enum):
         254 .. log enabled, 
         255 .. log disabled
     """
-    unbekannt = 0  # Hinzugefügt
-    entsperrt = 1
-    gesperren = 2
-    geöffnet = 3
-    Lock und Go = 4
-    Lock und Go geöffnet = 5
+    unknown = 0  # Unbekannt
+    unlock = 1  # Aufgeschlossen
+    lock = 2  # Abgeschlossen
+    unlatch = 3  # Entriegelt
+    lockngo = 4  # Lock 'n' Go
+    lockngo_unlatch = 5  # Lock 'n' Go mit Entriegelung
 
-    Tür ist offen! = 208
-    Tür fehler! = 209
-    tuerklingel_erkennung = 224
+    door_warning_ajar = 208  # Türwarnung: Offen
+    door_warning_mismatch = 209  # Türwarnung: Nicht korrekt geschlossen
+    doorbell_recognition = 224  # Türklingel erkannt
 
-    Tür ist offen = 240
-    Tür ist geschlossen= 241
-    Tür klemmt = 242
-    unbekannt2 = 244
+    door_opened = 240  # Tür geöffnet
+    door_closed = 241  # Tür geschlossen
+    door_jammed = 242  # Tür blockiert
+    unknown2 = 244  # Unbekannt 2
 
-    tuer_protokoll_aktiviert = 250
-    tuer_protokoll_deaktiviert = 251
-    initialisierung = 252
-    protokoll_aktiviert = 254
-    protokoll_deaktiviert = 255
+    door_log_enabled = 250  # Türprotokoll aktiviert
+    door_log_disabled = 251  # Türprotokoll deaktiviert
+    initialization = 252  # Initialisierung
+    log_enabled = 254  # Protokoll aktiviert
+    log_disabled = 255  # Protokoll deaktiviert
+
 
       
 class LOCK_MODE(Enum):
