@@ -94,27 +94,28 @@ class ACTION(Enum):
         254 .. log enabled, 
         255 .. log disabled
     """
-    unknown = 0 # added 
-    unlock  = 1
-    lock    = 2
-    unlatch = 3
-    lockngo = 4
-    lockngo_unlatch = 5
+    unbekannt = 0  # Hinzugefügt
+    entsperrt = 1
+    gesperren = 2
+    geöffnet = 3
+    Lock und Go = 4
+    Lock und Go geöffnet = 5
 
-    door_warning_ajar = 208
-    door_warning_mismatch = 209
-    doorbell_recognition = 224
-    
-    door_opened = 240
-    door_closed = 241
-    door_jammed = 242
-    unknown2 = 244
-    
-    door_log_enabled = 250
-    door_log_disabled = 251
-    initialization = 252
-    log_enabled = 254
-    log_disabled = 255
+    Tür ist offen! = 208
+    Tür fehler! = 209
+    tuerklingel_erkennung = 224
+
+    Tür ist offen = 240
+    Tür ist geschlossen= 241
+    Tür klemmt = 242
+    unbekannt2 = 244
+
+    tuer_protokoll_aktiviert = 250
+    tuer_protokoll_deaktiviert = 251
+    initialisierung = 252
+    protokoll_aktiviert = 254
+    protokoll_deaktiviert = 255
+
       
 class LOCK_MODE(Enum):
     """ The smartlock mode, used by /smartlock

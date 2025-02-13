@@ -43,7 +43,7 @@ def log(data: model.LogEntry, user="lockbot"):
     time = data.date.strftime('%T')
     user = user if data.name == "Lock Bot 🤖" else data.trigger.name
     action = emoji_action(data.state, data.action) + data.action.name
-    msg = f"[{time}]\n{action} by {user}"
+    msg = f"[{time}]\n{action} von {user}"
     if (state := data.state) != LOG_STATE.success:
         msg +=f"\n {state.name}"
     return msg
