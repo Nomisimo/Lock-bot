@@ -7,7 +7,14 @@ Define enums to parse integers in datastructures.
 from enum import Enum
 
 # from https://api.nuki.io/#/Smartlock
-# from https://api.nuki.io/#/SmartlockLog
+# from https://api.nuki.io/#/Smartlock/Log
+
+# Noch nicht schön gelöst denke ich @Kolja
+class ROOM_NAME(Enum):
+    Garage21 = 17968122341
+
+class ROOM_NAME_DE(Enum):
+  Garage21  = "Garage 21"
 
 class DEVICE_TYPE(Enum):
     """ The device type, used by /smartlock, /log 
@@ -116,8 +123,30 @@ class ACTION(Enum):
     log_enabled = 254  # Protokoll aktiviert
     log_disabled = 255  # Protokoll deaktiviert
 
+class ACTION_DE(Enum):
+    """ German translations of ACTION Enum """
+    unknown = "Unbekannt❔"
+    unlock = "Wurde aufgeschlossen 🔓"
+    lock = "Wurde abgeschlossen 🔒"
+    unlatch = "Wurde entriegelt 🔐"
+    lockngo = "Lock 'n' Go 🔒🚶"
+    lockngo_unlatch = "Lock 'n' Go mit Entriegelung 🔐🚶"
 
-      
+    door_warning_ajar = "⛔️ Wahrung. Tür ist Offen ⛔️"
+    door_warning_mismatch = "⛔️ Wahrung: Nicht korrekt geschlossen ⛔️"
+    doorbell_recognition = "Türklingel erkannt"
+
+    door_opened = "Die Tür wurde geöffnet 🚪💨"
+    door_closed = "Die Tür wurde geschlossen 🚪🔒"
+    door_jammed = "Die Tür ist blockiert 🚪❌"
+    unknown2 = "Unbekannt 2❓"
+
+    door_log_enabled = "Türprotokoll aktiviert ✅"
+    door_log_disabled = "Türprotokoll deaktiviert 🚫"
+    initialization = "Initialisierung 🔄"
+    log_enabled = "Protokoll aktiviert ✅"
+    log_disabled = "Protokoll deaktiviert 🚫"
+    
 class LOCK_MODE(Enum):
     """ The smartlock mode, used by /smartlock
         0 .. uninitialized, 1 .. pairing, 
