@@ -33,6 +33,13 @@ def validate_or_warning(warning_text=None):
         return wrapper    
     return decorator
 
+def validate_true(func):
+    """ this decorator evaluates to true. """
+    
+    @wraps(func)
+    async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE, *args, **kwargs):
+        return await func(update, context, *args, **kwargs)
+    return wrapper
 
 def validate_or_alternative(alternative_func):
     """ this creates a decorator with an alternative route if the chat is not authorized."""

@@ -24,8 +24,15 @@ ACTIONS = {
     "status ❓" : handle_status, 
     "battery 🔋": handle_battery,
     }
+ACTIONS = {
+    "/lock"   : handle_lock, 
+    "/unlock" : handle_unlock,
+    "/status" : handle_status, 
+    "/battery": handle_battery,
+    }
 
-    
+
+@auth.validate_true
 async def handle_hello(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """ display user id, that has to be added to the config for auth."""
     user = update.effective_user
@@ -43,16 +50,17 @@ async def handle_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     grid = list(zip(it,it))
     reply_markup = ReplyKeyboardMarkup(grid, resize_keyboard=True)
 
+    array = [f"- {key}" for key in ACTIONS.keys()]
+
     # Send a message with the keyboard
     await update.message.reply_text(
-        'Choose or type an action:',
+        'Choose or type an action:\n'+"\n".join(array),
         reply_markup=reply_markup
     )
     
 async def setup_nuki(app):
     key = app.bot_data["nuki"]
-    is_dev = app.bot_data["dev"]
-    if is_dev:
+    if app.bot_data["dev"]:
         app.bot_data["nuki"] = await DevAsyncNuki.new(api_key=key)
     else:
         app.bot_data["nuki"] = await AsyncNuki.new(api_key=key)
@@ -71,6 +79,7 @@ def create_app(token: str, nuki: str = None, dev: bool=False):
         app.add_handler(MessageHandler(filters.Text(text), func))
         
     app.bot_data["nuki"] = nuki
+    dev = dev  or config.get("nuki", "dev") == "True"
     app.bot_data["dev"] = dev
     logger.info(f"application created ({dev=})")
     return app

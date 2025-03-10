@@ -18,7 +18,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
 def create_config(path=None) -> Path:
     assert PATH_TEMPLATE.exists()
     version = metadata.version("lockbot")

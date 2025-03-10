@@ -16,7 +16,8 @@ dependencies = [
     "apscheduler >= 3.10",
     "pytz",
     "requests",
-    "flask"
+    "flask",
+    "coloredlogs"
 ]
 dynamic = ["version"]
 
