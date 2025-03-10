@@ -8,6 +8,7 @@ from . import message
 from . import util
 from . import action
 from . import status
+from . import keypad
 from . import core
 
 from .core import create_app

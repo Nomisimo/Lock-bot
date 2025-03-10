@@ -12,24 +12,13 @@ from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, filte
 from . import auth
 from .action import handle_lock, handle_unlock
 from .status import handle_status, handle_battery
+from .keypad import handle_keypad
+
 
 from lockbot import config
 from lockbot.lock import AsyncNuki, DevAsyncNuki
 
 logger = logging.getLogger(__name__)
-
-ACTIONS = {
-    "lock 🔒"   : handle_lock, 
-    "unlock 🔓" : handle_unlock,
-    "status ❓" : handle_status, 
-    "battery 🔋": handle_battery,
-    }
-ACTIONS = {
-    "/lock"   : handle_lock, 
-    "/unlock" : handle_unlock,
-    "/status" : handle_status, 
-    "/battery": handle_battery,
-    }
 
 
 @auth.validate_true
@@ -37,6 +26,15 @@ async def handle_hello(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     """ display user id, that has to be added to the config for auth."""
     user = update.effective_user
     await update.message.reply_text(f'Hello {user.username}, {user.id}')
+
+ACTIONS = {
+    "/lock"   : handle_lock, 
+    "/unlock" : handle_unlock,
+    "/status" : handle_status, 
+    "/battery": handle_battery,
+    "/keypad": handle_keypad,
+    "/hello": handle_hello,
+    }
 
 @auth.validate_or_alternative(handle_hello)
 async def handle_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
