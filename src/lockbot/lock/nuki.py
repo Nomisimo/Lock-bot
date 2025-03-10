@@ -13,10 +13,13 @@ from lockbot.lock import urls
 from lockbot.lock import model
 logger = logging.getLogger(__name__)
 
+from typing import override
+
 
 class Nuki():
 
     def __init__(self, api_key = None):
+        self.logger = logging.getLogger(__name__)
         if api_key is None:
             api_key = config.get("nuki", "api_key")
         
@@ -43,7 +46,7 @@ class Nuki():
         code = http.HTTPStatus(status)
         success = (200 <= code <= 299)
         if not success:
-            logger.error(code.description)
+            self.logger.error(code.description)
         return success # code.is_success  
 
     def get_request(self, url):
@@ -55,7 +58,7 @@ class Nuki():
                 data = response.json()
                 return data
         except Exception as e:
-            logger.error(f"GET request failed for {url}\n\t{e}")
+            self.logger.error(f"GET request failed for {url}\n\t{e}")
             return None
         
     def post_request(self, url):
@@ -64,7 +67,7 @@ class Nuki():
                 response = client.post(url)
             return self.handle_http_status(response.status_code)
         except Exception as e:
-            logger.error(f"Error sending lock action: {e}")
+            self.logger.error(f"Error sending lock action: {e}")
             return False
         
     def get_smartlock(self, lock_id=None, raw: bool=False) -> list[model.Smartlock] | model.Smartlock:
@@ -102,15 +105,13 @@ class Nuki():
         data = self.get_smartlock(lock_id=None)
         ids = [d.smartlockId for d in data]
         return ids
-    
-
-    
+        
     def set_default_lock(self, lock_id):
         if lock_id in self.lock_ids:
             self.default_id = lock_id
-            logger.info("set default lock to {self.lock_id}")
+            self.logger.info("set default lock to {self.lock_id}")
         else:
-            logger.error(f"{lock_id} not in {self.lock_ids}")
+            self.logger.error(f"{lock_id} not in {self.lock_ids}")
 
 
 class AsyncNuki(Nuki):
@@ -119,7 +120,7 @@ class AsyncNuki(Nuki):
     async def new(cls, api_key = None):
         self = cls(api_key=api_key)
         self.lock_ids = await self.get_smartlock_ids()
-        logger.info(f"{cls.__name__} created, found locks {self.lock_ids}")
+        self.logger.info(f"{cls.__name__} created, found locks {self.lock_ids}")
         return self
     
     async def get_request(self, url):
@@ -131,7 +132,7 @@ class AsyncNuki(Nuki):
                 data = response.json()
                 return data
         except Exception as e:
-            logger.error(f"GET request failed for {url}\n\t{e}")
+            self.logger.error(f"GET request failed for {url}\n\t{e}")
             return None
         
     async def post_request(self, url):
@@ -140,7 +141,7 @@ class AsyncNuki(Nuki):
                 response = await client.post(url)
             return self.handle_http_status(response.status_code)
         except Exception as e:
-            logger.error(f"Error sending lock action: {e}")
+            self.logger.error(f"Error sending lock action: {e}")
             return False
         
     async def get_smartlock(self, lock_id=None, raw: bool=False) -> list[model.Smartlock] | model.Smartlock:
@@ -179,3 +180,16 @@ class AsyncNuki(Nuki):
         ids = [d.smartlockId for d in data]
         return ids
     
+    
+    
+class DevAsyncNuki(AsyncNuki):
+    
+    @override
+    async def post_lock(self, lock_id) -> bool:
+        self.logger.warning("locking disabled in dev mode")
+        return False
+    
+    @override
+    async def post_unlock(self, lock_id) -> bool:
+        self.logger.warning("unlocking disabled in dev mode")
+        return False

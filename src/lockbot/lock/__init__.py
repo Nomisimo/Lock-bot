@@ -8,9 +8,9 @@ Created on Sat Jan  4 13:21:20 2025
 from . import urls
 from . import const
 from . import model
-
-from .nuki import Nuki, AsyncNuki
-
-
 from . import parse
+
+from .nuki import Nuki, AsyncNuki, DevAsyncNuki
+
+
 

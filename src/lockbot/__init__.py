@@ -10,7 +10,7 @@ __version__ = 0.3
 from . import config
 
 from . import lock
-from .lock.nuki import Nuki, AsyncNuki
+from .lock.nuki import Nuki, AsyncNuki, DevAsyncNuki
 
 from . import bot
 from .bot import create_app

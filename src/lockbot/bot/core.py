@@ -13,7 +13,8 @@ from . import auth
 from .action import handle_lock, handle_unlock
 from .status import handle_status, handle_battery
 
-from .. import AsyncNuki, config
+from lockbot import config
+from lockbot.lock import AsyncNuki, DevAsyncNuki
 
 logger = logging.getLogger(__name__)
 
@@ -50,11 +51,16 @@ async def handle_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     
 async def setup_nuki(app):
     key = app.bot_data["nuki"]
-    app.bot_data["nuki"] = await AsyncNuki.new(api_key=key)
+    is_dev = app.bot_data["dev"]
+    if is_dev:
+        app.bot_data["nuki"] = await DevAsyncNuki.new(api_key=key)
+    else:
+        app.bot_data["nuki"] = await AsyncNuki.new(api_key=key)
+        
     app.bot_data["lock_id"] = config.get("nuki", "lock_id")
     app.bot_data["logs"] = deque(maxlen=10)
 
-def create_app(token: str, nuki: str = None):
+def create_app(token: str, nuki: str = None, dev: bool=False):
     """ Factory function to get the full bot.
     """
     app = ApplicationBuilder().token(token).post_init(setup_nuki).build()
@@ -65,5 +71,6 @@ def create_app(token: str, nuki: str = None):
         app.add_handler(MessageHandler(filters.Text(text), func))
         
     app.bot_data["nuki"] = nuki
-    logger.info("application created")
+    app.bot_data["dev"] = dev
+    logger.info(f"application created ({dev=})")
     return app

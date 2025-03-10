@@ -24,11 +24,12 @@ def greet():
     user = getpass.getuser()  # Ändere hier
     logger.info(f"Hello {user}, lockbot is installed.")
 
-def run_app(path_config: Path):
+def run_app(path_config: Path, dev: bool=False):
     config.load_config(path=path_config)
     
     app = create_app(token = config.get("telegram", "api_key"),
-                     nuki= config.get("nuki", "api_key")
+                     nuki = config.get("nuki", "api_key"),
+                     dev = dev
                      )
     app.run_polling()
 
@@ -88,6 +89,8 @@ def main():
         description="The LautisHannover smartlock-control-bot.", 
         )
     parser.add_argument("-c", "--config", help="file path of config object", default="config.cfg")
+    parser.add_argument("--dev", help="use development mode", action="store_true", default=False)
+
     parser.set_defaults(func="main")
 
     subparsers = parser.add_subparsers(title="tools", help=None)
@@ -96,7 +99,6 @@ def main():
     setup_testflask(subparsers)
 
     args = parser.parse_args()
-    
     path_config = Path(args.config)
     if path_config.is_dir():
         path_config /= "config.cfg"
@@ -114,8 +116,7 @@ def main():
         run_testflask(path_config)
         return
         
-        
-    run_app(path_config)
+    run_app(path_config, dev=args.dev)
     
 
 if __name__ == "__main__":
