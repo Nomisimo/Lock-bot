@@ -2,6 +2,7 @@ import logging
 from pathlib import Path
 from configparser import ConfigParser
 from pprint import pformat
+from importlib import metadata
 
 PATH_CONFIG = Path("config.cfg")
 PATH_TEMPLATE = Path(__file__).parent.joinpath("config_template.cfg")
@@ -18,19 +19,28 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def create_config(path=None) -> Path:
+    assert PATH_TEMPLATE.exists()
+    version = metadata.version("lockbot")
+    path.write_text(PATH_TEMPLATE.read_text().format(version=version))
+    logger.info(f"new config file created at {path.resolve()}.\n\tUpdate the file.")
+    raise ConfigError(f"The file @{path.resolve()} was created.")
+    
+
 def load_config(path=None) -> ConfigParser:
     global PATH_CONFIG, CONFIG
     if path is not None and Path(path).exists():
         PATH_CONFIG = Path(path)
 
     if not PATH_CONFIG.exists():
-        assert PATH_TEMPLATE.exists()
-        PATH_CONFIG.write_text(PATH_TEMPLATE.read_text())
-        logger.info(f"new config file created at {PATH_CONFIG.resolve()}.\n\tUpdate the file.")
-        raise ConfigError(f"The file @{PATH_CONFIG.resolve()} was created.")
+        create_config(path=PATH_CONFIG)
 
     CONFIG = ConfigParser()
     CONFIG.read(PATH_CONFIG)
+    
+    version = metadata.version("lockbot")
+    if version != (val := CONFIG.get("dev", "version", fallback="unknown")):
+        logger.error(f"The installed {version=} doesnt match version='{val}' in the config file ({PATH_CONFIG})")
     
     update_loglevels()
     logger.info(f"The config loaded from {PATH_CONFIG.resolve()}")
