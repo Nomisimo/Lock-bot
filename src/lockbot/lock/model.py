@@ -184,6 +184,8 @@ class SmartlockAuth:
     
     
     def __post_init__(self):
+        self.type = const.AUTH_TYPE(self.type)
+        
         self.allowedFromDate = (datetime.fromisoformat(self.allowedFromDate) 
                                 if self.allowedFromDate is not None else None)
         self.allowedUntilDate = (datetime.fromisoformat(self.allowedUntilDate) 

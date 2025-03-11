@@ -53,5 +53,5 @@ def url_auth(lock_id=None, auth_id=None):
     elif auth_id is None:
         url = urljoin(BASE_URL, f"smartlock/{lock_id}/auth")
     else:
-        url = urljoin(BASE_URL, f"smartlock/{lock_id}/auth/{id}")
+        url = urljoin(BASE_URL, f"smartlock/{lock_id}/auth/{auth_id}")
     return url

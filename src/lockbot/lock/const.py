@@ -253,3 +253,15 @@ class LOG_SOURCE(Enum):
 
     unknown = 255
     
+    
+class AUTH_TYPE(Enum):
+    """ The type of the authorisation. used by SmartlockAuth
+    """
+    app = 0
+    bridge = 1
+    fob = 2
+    keypad = 3
+    keypad_code = 13
+    zkey = 14
+    virtual = 15
+    

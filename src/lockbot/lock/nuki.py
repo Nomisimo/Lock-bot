@@ -46,7 +46,7 @@ class Nuki():
         code = http.HTTPStatus(status)
         success = (200 <= code <= 299)
         if not success:
-            self.logger.error(code.description)
+            logger.error(f"HTTP {code} {code.description}")
         return success # code.is_success  
 
     def get_request(self, url):
@@ -61,11 +61,30 @@ class Nuki():
             self.logger.error(f"GET request failed for {url}\n\t{e}")
             return None
         
-    def post_request(self, url):
+    def post_request(self, url, json=None):
         try:
             with httpx.Client(headers=self.headers) as client:    
-                response = client.post(url)
+                response = client.post(url, json=json)
             return self.handle_http_status(response.status_code)
+        except Exception as e:
+            self.logger.error(f"POST request failed for {url}\n\t{e}")
+            return False
+        
+        
+    def put_request(self, url, json=None):
+        try:
+            with httpx.Client(headers=self.headers) as client:
+                response = client.put(url, json=json)
+                return self.handle_http_status(response.status_code)
+        except Exception as e:
+            self.logger.error(f"Error sending lock action: {e}")
+            return False
+        
+    def del_request(self, url):
+        try:
+            with httpx.Client(headers=self.headers) as client:
+                response = client.delete(url)
+                return self.handle_http_status(response.status_code)
         except Exception as e:
             self.logger.error(f"Error sending lock action: {e}")
             return False
@@ -89,7 +108,10 @@ class Nuki():
     def get_auth(self, lock_id=None, auth_id=None, raw: bool=False):
         url = urls.url_auth(lock_id, auth_id)
         data = self.get_request(url)
-        return data
+        if raw:
+            return data
+        return [model.SmartlockAuth(**a) for a in data]
+    
     
     def post_lock(self, lock_id) -> bool:
         url = urls.url_action(lock_id, action="lock")
