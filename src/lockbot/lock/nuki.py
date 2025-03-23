@@ -65,6 +65,7 @@ class Nuki():
         try:
             with httpx.Client(headers=self.headers) as client:    
                 response = client.post(url, json=json)
+                self.logger.debug(response)
             return self.handle_http_status(response.status_code)
         except Exception as e:
             self.logger.error(f"POST request failed for {url}\n\t{e}")
@@ -112,6 +113,12 @@ class Nuki():
             return data
         return [model.SmartlockAuth(**a) for a in data]
     
+    def update_auth(self, lock_id, auth_id, data, raw: bool=True):
+        url = urls.url_auth(lock_id, auth_id)
+        if not raw:
+            raise ValueError("not supported")
+        success = self.post_request(url, json=data)
+        return success
     
     def post_lock(self, lock_id) -> bool:
         url = urls.url_action(lock_id, action="lock")

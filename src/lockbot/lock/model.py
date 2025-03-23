@@ -16,7 +16,18 @@ from enum import Enum
 
 import pytz
 from . import const
+
 tz_local = pytz.timezone("Europe/Berlin")
+tz_utc = pytz.utc
+
+
+def dt_to_str(dt: datetime):
+    return dt.astimezone(tz_utc).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+
+def dt_or_none(val: str):
+    """ convert to datetime if not None."""
+    return (datetime.fromisoformat(val).astimezone(tz_local) 
+            if val is not None else None)
 
 def convert_to_json(da: object) -> dict:
     """ convert dataclass back to original json dict."""
@@ -25,9 +36,7 @@ def convert_to_json(da: object) -> dict:
         if isinstance(v, Enum):
             res[k] = v.value
         if isinstance(v, datetime):
-            v = v.astimezone(pytz.utc)
-            res[k] = v.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
-            
+            res[k] = dt_to_str(v)
     # sort out not set optional values
     res = {k: v for k,v in res.items() if v is not None}
     return res
@@ -62,7 +71,7 @@ class LogEntry:
         self.state = const.LOG_STATE(self.state)
         self.trigger = const.TRIGGER(self.trigger)
         
-        self.date = datetime.fromisoformat(self.date).astimezone(tz_local)        
+        self.date = dt_or_none(self.date)       
     
     def to_json(self):
         """ convert back to json-dict to be send to api."""
@@ -142,8 +151,8 @@ class Smartlock:
         """ convert back to json-dict to be send to api."""
         self.type = const.DEVICE_TYPE(self.type)
         self.state = SmartlockState(**self.state)
-        self.creationDate = datetime.fromisoformat(self.creationDate)
-        self.updateDate = datetime.fromisoformat(self.updateDate)
+        self.creationDate = dt_or_none(self.creationDate)
+        self.updateDate = dt_or_none(self.updateDate)
         
         
 
@@ -153,6 +162,9 @@ class Smartlock:
         res["state"] = convert_to_json(self.state)
         return res
     
+
+
+
 
 @dataclass
 class SmartlockAuth:
@@ -186,16 +198,12 @@ class SmartlockAuth:
     def __post_init__(self):
         self.type = const.AUTH_TYPE(self.type)
         
-        self.allowedFromDate = (datetime.fromisoformat(self.allowedFromDate) 
-                                if self.allowedFromDate is not None else None)
-        self.allowedUntilDate = (datetime.fromisoformat(self.allowedUntilDate) 
-                                  if self.allowedUntilDate is not None else None)
-        self.creationDate = (datetime.fromisoformat(self.creationDate) 
-                              if self.creationDate is not None else None)
-        self.updateDate = (datetime.fromisoformat(self.updateDate) 
-                            if self.updateDate is not None else None)
-        self.lastActiveDate = (datetime.fromisoformat(self.lastActiveDate) 
-                                if self.lastActiveDate is not None else None)
+        self.allowedFromDate = dt_or_none(self.allowedFromDate)
+        self.allowedUntilDate = dt_or_none(self.allowedUntilDate)
+        self.creationDate = dt_or_none(self.creationDate)
+        
+        self.updateDate = dt_or_none(self.updateDate) 
+        self.lastActiveDate = dt_or_none(self.lastActiveDate)
     
     def to_json(self):
             
