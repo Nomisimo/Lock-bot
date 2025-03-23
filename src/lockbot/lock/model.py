@@ -26,6 +26,8 @@ def dt_to_str(dt: datetime):
 
 def dt_or_none(val: str):
     """ convert to datetime if not None."""
+    if isinstance(val, datetime):
+        return val
     return (datetime.fromisoformat(val).astimezone(tz_local) 
             if val is not None else None)
 
@@ -76,6 +78,11 @@ class LogEntry:
     def to_json(self):
         """ convert back to json-dict to be send to api."""
         return convert_to_json(self)
+    
+    @classmethod
+    def from_json(cls, data):
+        return [cls(**d) for d in data]
+
     
 @dataclass
 class SmartlockState:
@@ -162,51 +169,57 @@ class Smartlock:
         res["state"] = convert_to_json(self.state)
         return res
     
+    @classmethod
+    def from_json(cls, data):
+        if isinstance(data, list):
+            return [cls(**d) for d in data]
+        return cls(**data)
 
 
 
 
-@dataclass
-class SmartlockAuth:
-    id:             str
-    smartlockId:    str
-    type:           int # ToDo: create const.AUTH_TYPE
-    name:           str
-    enabled:        bool
-    remoteAllowed:  bool
-    lockCount:      int
+
+# @dataclass
+# class SmartlockAuth:
+#     id:             str
+#     smartlockId:    str
+#     type:           int # ToDo: create const.AUTH_TYPE
+#     name:           str
+#     enabled:        bool
+#     remoteAllowed:  bool
+#     lockCount:      int
     
-    accountUserId:  int = None
-    authId:         int = None
-    code:           int = None
-    fingerprints:   dict = None
+#     accountUserId:  int = None
+#     authId:         int = None
+#     code:           int = None
+#     fingerprints:   dict = None
     
-    allowedFromDate	: datetime = None
-    allowedUntilDate: datetime = None
-    allowedWeekDays:    int = None
-    allowedFromTime	:    int = None
-    allowedUntilTime:   int = None
-    lastActiveDate: datetime = None
-    creationDate:   datetime = None
-    updateDate:     datetime = None
-    operationId:    dict = None
-    error:          str = None
-    appId:          str = None
-    authTypeAsString: str = None
+#     allowedFromDate	: datetime = None
+#     allowedUntilDate: datetime = None
+#     allowedWeekDays:    int = None
+#     allowedFromTime	:    int = None
+#     allowedUntilTime:   int = None
+#     lastActiveDate: datetime = None
+#     creationDate:   datetime = None
+#     updateDate:     datetime = None
+#     operationId:    dict = None
+#     error:          str = None
+#     appId:          str = None
+#     authTypeAsString: str = None
     
     
-    def __post_init__(self):
-        self.type = const.AUTH_TYPE(self.type)
+#     def __post_init__(self):
+#         self.type = const.AUTH_TYPE(self.type)
         
-        self.allowedFromDate = dt_or_none(self.allowedFromDate)
-        self.allowedUntilDate = dt_or_none(self.allowedUntilDate)
-        self.creationDate = dt_or_none(self.creationDate)
+#         self.allowedFromDate = dt_or_none(self.allowedFromDate)
+#         self.allowedUntilDate = dt_or_none(self.allowedUntilDate)
+#         self.creationDate = dt_or_none(self.creationDate)
         
-        self.updateDate = dt_or_none(self.updateDate) 
-        self.lastActiveDate = dt_or_none(self.lastActiveDate)
+#         self.updateDate = dt_or_none(self.updateDate) 
+#         self.lastActiveDate = dt_or_none(self.lastActiveDate)
     
-    def to_json(self):
+#     def to_json(self):
             
-        res = convert_to_json(self)
-        return res
+#         res = convert_to_json(self)
+#         return res
     

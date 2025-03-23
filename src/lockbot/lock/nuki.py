@@ -11,6 +11,7 @@ from lockbot import config
 
 from lockbot.lock import urls
 from lockbot.lock import model
+from lockbot.lock.auth import SmartlockAuths, SmartlockAuth
 logger = logging.getLogger(__name__)
 
 from typing import override
@@ -95,29 +96,31 @@ class Nuki():
         data = self.get_request(url)
         if raw:
             return data
-        if isinstance(data, list):
-            return [model.Smartlock(**d) for d in data]
-        return model.Smartlock(**data)
+        return model.Smartlock.from_json(data)
         
     def get_logs(self, lock_id=None, limit=5, raw: bool=False) -> list[model.LogEntry]:
         url = urls.url_log(lock_id=lock_id, limit=limit)
         data = self.get_request(url)
         if raw:
             return data
-        return [model.LogEntry(**d) for d in data]
+        return model.LogEntry.from_json(data)
 
     def get_auth(self, lock_id=None, auth_id=None, raw: bool=False):
         url = urls.url_auth(lock_id, auth_id)
         data = self.get_request(url)
         if raw:
             return data
-        return [model.SmartlockAuth(**a) for a in data]
+        return SmartlockAuths.from_json(data)
     
-    def update_auth(self, lock_id, auth_id, data, raw: bool=True):
-        url = urls.url_auth(lock_id, auth_id)
+    
+    def update_auth(self, auth: dict, raw: bool=False):
+        if auth is None:
+            self.logger.error("Auth is None")
+            return False
         if not raw:
-            raise ValueError("not supported")
-        success = self.post_request(url, json=data)
+            auth = auth.to_json()
+        url = urls.url_auth(lock_id=auth["smartlockId"], auth_id=auth["id"])
+        success = self.post_request(url, json=auth)
         return success
     
     def post_lock(self, lock_id) -> bool:

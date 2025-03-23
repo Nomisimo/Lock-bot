@@ -24,6 +24,7 @@ def get_headers(api_key=None):
     return headers
 
 def url_status(lock_id=None):
+    """ url for requesting lock state."""
     if lock_id:
         url = urljoin(BASE_URL, f"smartlock/{lock_id}")    
     else:
@@ -31,6 +32,7 @@ def url_status(lock_id=None):
     return url
 
 def url_log(lock_id=None, limit=5):
+    """ url for requesting log entrys."""
     if lock_id:
         url = urljoin(BASE_URL, f"smartlock/{lock_id}/log")
     else:
@@ -40,6 +42,7 @@ def url_log(lock_id=None, limit=5):
     
 
 def url_action(lock_id, action="lock"):
+    """ url for posting lock actions."""
     if action not in ("lock", "unlock"):
         raise ValueError(f"action {action} not allowed.")
     
@@ -48,6 +51,7 @@ def url_action(lock_id, action="lock"):
 
 
 def url_auth(lock_id=None, auth_id=None):
+    """ url for CRUD smartlock auths."""
     if lock_id is None:
         url = urljoin(BASE_URL, "smartlock/auth")
     elif auth_id is None:
