@@ -17,7 +17,10 @@ dependencies = [
     "pytz",
     "requests",
     "flask",
-    "coloredlogs"
+    "coloredlogs",
+    "google-api-python-client",
+    "google-auth-httplib2",
+    "google-auth-oauthlib"
 ]
 dynamic = ["version"]
 

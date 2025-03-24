@@ -26,6 +26,12 @@ def dt_or_none(val: str):
     return (datetime.fromisoformat(val).astimezone(tz_local) 
             if val is not None else None)
 
+def tz_as_local(dt: datetime):
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=tz_local)
+    return dt.astimezone(tz_local)
+
+
 def convert_to_json(da: object) -> dict:
     """ convert dataclass back to original json dict."""
     res = asdict(da)

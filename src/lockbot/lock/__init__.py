@@ -12,7 +12,7 @@ from . import const
 # model classes
 from .log import SmartlockLog
 from .state import SmartlockState, Smartlock
-from .auth import SmartlockAuth, SmartlockAuths
+from .auth import SmartlockAuth, SmartlockAuthCreate, SmartlockAuths
 
 
 from . import parse

@@ -12,7 +12,9 @@ from lockbot import config
 from lockbot.lock import urls
 
 from lockbot.lock import (Smartlock, SmartlockLog,
-                          SmartlockAuths, SmartlockAuth)
+                          SmartlockAuth, 
+                          SmartlockAuthCreate,
+                          SmartlockAuths)
 logger = logging.getLogger(__name__)
 
 from typing import override
@@ -73,7 +75,6 @@ class Nuki():
         try:
             with httpx.Client(headers=self.headers) as client:    
                 response = client.post(url, json=json)
-                self.logger.debug(response)
             return self.handle_http_status(response.status_code)
         except Exception as e:
             self.logger.error(f"POST request failed for {url}\n\t{e}")
@@ -194,14 +195,41 @@ class Nuki():
     
     def post_auth(self, auth: dict, raw: bool=False):
         if auth is None:
-            self.logger.error("Auth is None")
+            self.logger.error("post_auth: auth is None")
             return False
         if not raw:
             auth = auth.to_json()
         url = urls.url_auth(lock_id=auth["smartlockId"], auth_id=auth["id"])
         success = self.post_request(url, json=auth)
+        if success:
+            self.logger.info(f"Auth({auth['name']}) updated.")
         return success
     
+    def put_auth(self, auth: dict, raw: bool=False):
+        if auth is None:
+            self.logger.error("put_auth: auth is None")
+            return False
+        if not raw:
+            assert isinstance(auth, SmartlockAuthCreate)
+            auth = auth.to_json()
+        url = urls.url_auth(lock_id=None) # lock_id from auth-smartlockIds
+        success = self.put_request(url, json=auth)
+        if success:
+            self.logger.info(f"Auth({auth['name']}) created.")
+        return success
+    
+    def del_auth(self, auth: dict, raw: bool=False):
+        if auth is None:
+            self.logger.error("del_auth: auth is None")
+            return False
+        if not raw:
+            assert isinstance(auth, SmartlockAuth)
+            auth = auth.to_json()
+        url = urls.url_auth(lock_id=auth["smartlockId"], auth_id=auth["id"])
+        success = self.del_request(url)
+        if success: 
+            self.logger.info(f"Auth({auth['name']}) deleted.")
+        return success
     
 
 

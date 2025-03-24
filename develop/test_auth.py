@@ -5,11 +5,16 @@ Created on Mon Mar 24 00:06:57 2025
 @author: kolja
 """
 import logging
+from datetime import datetime, timezone
 
 from lockbot import config
-from lockbot.lock import Nuki
-from lockbot.lock.auth import SmartlockAuths
+from lockbot.lock import Nuki, urls
+from lockbot.lock.auth import SmartlockAuths, SmartlockAuth, SmartlockAuthCreate
+from lockbot.lock.const import AUTH_TYPE
 
+from pprint import pprint
+t1 = datetime(2025,4,10, 10)
+t2 = datetime(2025,4,10, 15)
 
 # SETUP
 config.load_config("config_dev.cfg")
@@ -18,27 +23,41 @@ lock_id = nuki.lock_ids[0]
 nuki.logger.setLevel(logging.DEBUG)
 
 
-
-
 """ TODOS:
-    - update time range
-    - create
-    - delete
     - ASync implementation
 """
+#%% create
+NAME = "FinalTest"
 
+AUTHS = nuki.get_auth(lock_id)
 
-# AUTHS = nuki.get_auth(lock_id, raw=True)
+new = (
+   AUTHS.create(NAME, lock_id)
+   # .set_period(t1,t2)
+   .created()
+   )
+val = nuki.put_auth(new)
+print(val, new)
+
+#%% update
+AUTHS = nuki.get_auth(lock_id)
+
 updated = (
-    # SmartlockAuths(AUTHS)
-    nuki.get_auth(lock_id, raw=False)
-    .by_name("ATest")
+    AUTHS
+    .by_name(NAME)
     # .set_name("BTest")
     .rotate_code()
-    .update_enable(True)
+    # .update_enable()
+    # .set_period(t1,t2)
+    # .clear_period()
     .updated()
 )
-# nuki.update_auth(updated.to_json(), raw=True)
-nuki.update_auth(updated)
-updated
+val = nuki.post_auth(updated)
+print(val, updated)
 
+#%% delete
+AUTHS = nuki.get_auth(lock_id)
+
+selected = AUTHS.delete(NAME)
+val = nuki.del_auth(selected)
+print(val, selected)
