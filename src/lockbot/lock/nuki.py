@@ -10,12 +10,15 @@ import httpx
 from lockbot import config
 
 from lockbot.lock import urls
-from lockbot.lock import model
-from lockbot.lock.auth import SmartlockAuths, SmartlockAuth
+
+from lockbot.lock import (Smartlock, SmartlockLog,
+                          SmartlockAuths, SmartlockAuth)
 logger = logging.getLogger(__name__)
 
 from typing import override
+from typing import Union, Dict, List, Any
 
+JsonType = Union[Dict[str, Any], List[Any], str, int, float, bool, None]
 
 class Nuki():
 
@@ -50,7 +53,10 @@ class Nuki():
             logger.error(f"HTTP {code} {code.description}")
         return success # code.is_success  
 
-    def get_request(self, url):
+    # ---- request
+
+    def get_request(self, url: str) -> JsonType:
+        """ handle get requests."""
         try: 
             with httpx.Client(headers=self.headers) as client:
                 response = client.get(url)
@@ -62,7 +68,8 @@ class Nuki():
             self.logger.error(f"GET request failed for {url}\n\t{e}")
             return None
         
-    def post_request(self, url, json=None):
+    def post_request(self, url, json: JsonType = None) -> bool:
+        """ handle post requests."""
         try:
             with httpx.Client(headers=self.headers) as client:    
                 response = client.post(url, json=json)
@@ -73,7 +80,8 @@ class Nuki():
             return False
         
         
-    def put_request(self, url, json=None):
+    def put_request(self, url: str, json: JsonType = None) -> bool:
+        """ handle put requests."""
         try:
             with httpx.Client(headers=self.headers) as client:
                 response = client.put(url, json=json)
@@ -82,7 +90,8 @@ class Nuki():
             self.logger.error(f"Error sending lock action: {e}")
             return False
         
-    def del_request(self, url):
+    def del_request(self, url: str) -> bool:
+        """ handle del requests."""
         try:
             with httpx.Client(headers=self.headers) as client:
                 response = client.delete(url)
@@ -90,30 +99,100 @@ class Nuki():
         except Exception as e:
             self.logger.error(f"Error sending lock action: {e}")
             return False
+    
+    # ---- nuki
         
-    def get_smartlock(self, lock_id=None, raw: bool=False) -> list[model.Smartlock] | model.Smartlock:
+    def get_smartlock(self, lock_id: str =None, raw: bool=False) -> list[Smartlock] | Smartlock | JsonType:
+        """
+        GET /smartlock OR /smartlock/{smartlockId}
+
+        Parameters
+        ----------
+        lock_id : str, optional
+            If given get only the smartlock of the id, else all smartlocks as list. The default is None.
+        raw : bool, optional
+            If true, the json is parsed as Smartlock. The default is False.
+
+        Returns
+        -------
+        JsonType | list[Smartlock] | Smartlock
+            The request result.
+        """
         url = urls.url_status(lock_id=lock_id)
         data = self.get_request(url)
         if raw:
             return data
-        return model.Smartlock.from_json(data)
+        return Smartlock.from_json(data)
         
-    def get_logs(self, lock_id=None, limit=5, raw: bool=False) -> list[model.LogEntry]:
+    def get_logs(self, lock_id: str = None, limit: int =5, raw: bool=False) -> list[SmartlockLog] | JsonType:
+        """
+        GET /smartlock/log or /smartlock/{smartlockId}/log
+ 
+        Parameters
+        ----------
+        lock_id : str, optional
+            DESCRIPTION. The default is None.
+        limit : int, optional
+            DESCRIPTION. The default is 5.
+        raw : bool, optional
+            DESCRIPTION. The default is False.
+
+        Returns
+        -------
+        TYPE
+            DESCRIPTION.
+
+        """
+        
         url = urls.url_log(lock_id=lock_id, limit=limit)
         data = self.get_request(url)
         if raw:
             return data
-        return model.LogEntry.from_json(data)
+        return SmartlockLog.from_json(data)
+    
+    def post_lock(self, lock_id: str) -> bool:
+        """
+        POST /smartlock/{smartlockId}/action/lock
+        """
+        url = urls.url_action(lock_id, action="lock")
+        success = self.post_request(url)
+        return success
+    
+    def post_unlock(self, lock_id) -> bool:
+        """
+        POST /smartlock/{smartlockId}/action/unlock
+        """
+        url = urls.url_action(lock_id, action="unlock")
+        success = self.post_request(url)
+        return success
+    
+    def get_smartlock_ids(self) -> list[int]:
+        """ Extract Ids for all smartlocks."""
+        data = self.get_smartlock(lock_id=None)
+        ids = [d.smartlockId for d in data]
+        return ids
+        
+    def set_default_lock(self, lock_id: str):
+        """ set default smartlock."""
+        if lock_id in self.lock_ids:
+            self.default_id = lock_id
+            self.logger.info("set default lock to {self.lock_id}")
+        else:
+            self.logger.error(f"{lock_id} not in {self.lock_ids}")
+            
+            
+    # ---- nuki auth
+    
 
     def get_auth(self, lock_id=None, auth_id=None, raw: bool=False):
+        """ request smartlock auth. Either single instance or all for a given lock_id."""
         url = urls.url_auth(lock_id, auth_id)
         data = self.get_request(url)
         if raw:
             return data
         return SmartlockAuths.from_json(data)
     
-    
-    def update_auth(self, auth: dict, raw: bool=False):
+    def post_auth(self, auth: dict, raw: bool=False):
         if auth is None:
             self.logger.error("Auth is None")
             return False
@@ -123,39 +202,21 @@ class Nuki():
         success = self.post_request(url, json=auth)
         return success
     
-    def post_lock(self, lock_id) -> bool:
-        url = urls.url_action(lock_id, action="lock")
-        success = self.post_request(url)
-        return success
     
-    def post_unlock(self, lock_id) -> bool:
-        url = urls.url_action(lock_id, action="unlock")
-        success = self.post_request(url)
-        return success
-    
-    def get_smartlock_ids(self) -> list[int]:
-        data = self.get_smartlock(lock_id=None)
-        ids = [d.smartlockId for d in data]
-        return ids
-        
-    def set_default_lock(self, lock_id):
-        if lock_id in self.lock_ids:
-            self.default_id = lock_id
-            self.logger.info("set default lock to {self.lock_id}")
-        else:
-            self.logger.error(f"{lock_id} not in {self.lock_ids}")
 
 
 class AsyncNuki(Nuki):
         
     @classmethod
-    async def new(cls, api_key = None):
+    async def new(cls, api_key: str = None):
         self = cls(api_key=api_key)
         self.lock_ids = await self.get_smartlock_ids()
         self.logger.info(f"{cls.__name__} created, found locks {self.lock_ids}")
         return self
     
-    async def get_request(self, url):
+    # ---- request
+    
+    async def get_request(self, url: str):
         try: 
             async with httpx.AsyncClient(headers=self.headers) as client:
                 response = await client.get(url)
@@ -167,7 +228,7 @@ class AsyncNuki(Nuki):
             self.logger.error(f"GET request failed for {url}\n\t{e}")
             return None
         
-    async def post_request(self, url):
+    async def post_request(self, url: str, json=None):
         try:
             async with httpx.AsyncClient(headers=self.headers) as client:    
                 response = await client.post(url)
@@ -176,27 +237,40 @@ class AsyncNuki(Nuki):
             self.logger.error(f"Error sending lock action: {e}")
             return False
         
-    async def get_smartlock(self, lock_id=None, raw: bool=False) -> list[model.Smartlock] | model.Smartlock:
+    async def put_request(self, url: str, json=None):
+         try:
+             async with httpx.AsyncClient(headers=self.headers) as client:
+                 response = await client.put(url, json=json)
+                 return self.handle_http_status(response.status_code)
+         except Exception as e:
+             self.logger.error(f"Error sending lock action: {e}")
+             return False
+         
+    async def del_request(self, url: str):
+         try:
+             async with httpx.AsyncClient(headers=self.headers) as client:
+                 response = await client.delete(url)
+                 return self.handle_http_status(response.status_code)
+         except Exception as e:
+             self.logger.error(f"Error sending lock action: {e}")
+             return False    
+        
+    # ---- nuki
+        
+    async def get_smartlock(self, lock_id=None, raw: bool=False) -> list[Smartlock] | Smartlock:
         url = urls.url_status(lock_id=lock_id)
         data = await self.get_request(url)
         if raw:
             return data
-        if isinstance(data, list):
-            return [model.Smartlock(**d) for d in data]
-        return model.Smartlock(**data)     
+        return Smartlock.from_json(data)
     
-    async def get_logs(self, lock_id=None, limit=5, raw: bool = False) -> list[model.LogEntry]:
+    async def get_logs(self, lock_id=None, limit=5, raw: bool = False) -> list[SmartlockLog]:
         url = urls.url_log(lock_id=lock_id, limit=limit)
         data = await self.get_request(url)
         if raw:
             return data
-        return [model.LogEntry(**d) for d in data]
+        return SmartlockLog.from_json(data)
     
-    async def get_auth(self, lock_id=None, auth_id=None, raw: bool=False):
-        url = urls.url_auth(lock_id, auth_id)
-        data = await self.get_request(url)
-        return data
-
     async def post_lock(self, lock_id) -> bool:
         url = urls.url_action(lock_id, action="lock")
         success = await self.post_request(url)
@@ -211,6 +285,26 @@ class AsyncNuki(Nuki):
         data = await self.get_smartlock(lock_id=None)
         ids = [d.smartlockId for d in data]
         return ids
+    
+    # ---- nuki auth
+    
+    async def get_auth(self, lock_id=None, auth_id=None, raw: bool=False):
+        url = urls.url_auth(lock_id, auth_id)
+        data = await self.get_request(url)
+        if raw:
+            return data
+        return SmartlockAuths.from_json(data)
+    
+    async def post_auth(self, auth: dict, raw: bool=False):
+        if auth is None:
+            self.logger.error("post_auth: auth is None")
+            return False
+        if not raw:
+            auth = auth.to_json()
+        url = urls.url_auth(lock_id=auth["smartlockId"], auth_id=auth["id"])
+        success = await self.post_request(url, json=auth)
+        return success
+
     
     
     

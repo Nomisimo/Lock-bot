@@ -13,16 +13,8 @@ from typing import  Self
 import logging
 
 from lockbot.lock import const
-from lockbot.lock.model import dt_or_none, convert_to_json
-
-import random
-
-def generate_code(): 
-    return int("".join(str(i) for i in random.choices(range(1,10), k=6)))
-
-def total_minutes(dt: datetime | pytime) -> int:
-    return dt.minute + dt.hour*60
-
+from lockbot.lock.utils import dt_or_none, convert_to_json
+from lockbot.lock.utils import generate_code, total_minutes
 
 @dataclass
 class SmartlockAuth:
@@ -74,11 +66,11 @@ class SmartlockAuth:
         return cls(**data)
     
         
-    def __repr__(self):
-        return (f"{self.__class__.__name__}({self.authId},\t"
-                f"name='{self.name}',\t"
-                f"code={self.code})"
-                )
+    # def __repr__(self):
+    #     return (f"{self.__class__.__name__}({self.authId},\t"
+    #             f"name='{self.name}',\t"
+    #             f"code={self.code})"
+    #             )
     
 
 @dataclass
@@ -157,8 +149,6 @@ class SmartlockAuths:
             self._updated.enabled = enable
         return self
     
-    def set_dt(self, from_date, until_date) -> Self:
-        raise NotImplementedError()
         
     def create(self, *args, **kwargs):
         raise NotImplementedError()
@@ -178,6 +168,30 @@ class SmartlockAuths:
             logging.info("nothing changed")
             return None
         return self._updated
+    
+    def set_time_period(self, from_date, until_date) -> Self:
+        # raise NotImplementedError()
+        if self._updated is None:
+            return self
+        self._updated.allowedWeekDays = 127
+        self._updated.allowedFromTime = 0
+        self._updated.allowedUntilTime = 0
+        self._updated.allowedFromDate = from_date
+        self._updated.allowedUntilDate = until_date
+        
+        return self
+    
+    def clear_time_period(self) -> Self:
+        if self._updated is None:
+            return self
+        
+        self._updated.allowedWeekDays = 0
+        self._updated.allowedFromTime = None
+        self._updated.allowedUntilTime = None
+        self._updated.allowedFromDate = None
+        self._updated.allowedUntilDate = None
+        return self
+        
         
     
     
