@@ -2,6 +2,8 @@
 """
 Created on Sun Jan  5 22:02:13 2025
 
+Utility functions for the telegram bot.
+
 @author: kolja
 """
 import logging

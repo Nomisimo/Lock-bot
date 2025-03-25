@@ -2,6 +2,8 @@
 """
 Created on Sun Jan  5 22:25:46 2025
 
+Handle status updates and battery status.
+
 @author: kolja
 """
 import asyncio

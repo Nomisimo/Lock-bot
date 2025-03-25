@@ -2,6 +2,8 @@
 """
 Created on Sun Jan  5 22:27:30 2025
 
+The main module of the telegram bot
+
 @author: kolja
 """
 import logging
@@ -38,7 +40,7 @@ ACTIONS = {
 
 @auth.validate_or_alternative(handle_hello)
 async def handle_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """ Start the bot. Create custom keyboard.    
+    """ Start the bot. Create custom keyboard for actions.    
     """
     await handle_battery(update, context)
     await handle_status(update, context)
@@ -57,6 +59,7 @@ async def handle_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     )
     
 async def setup_nuki(app):
+    """ setup nuki instance."""
     key = app.bot_data["nuki"]
     if app.bot_data["dev"]:
         app.bot_data["nuki"] = await DevAsyncNuki.new(api_key=key)
@@ -67,7 +70,7 @@ async def setup_nuki(app):
     app.bot_data["logs"] = deque(maxlen=10)
 
 def create_app(token: str, nuki: str = None, dev: bool=False):
-    """ Factory function to get the full bot.
+    """ Factory function to create telegram bot.
     """
     app = ApplicationBuilder().token(token).post_init(setup_nuki).build()
     app.add_handler(CommandHandler("hello", handle_hello))

@@ -2,6 +2,8 @@
 """
 Created on Mon Mar 10 21:46:52 2025
 
+Generate and update codes for the keypad.
+
 @author: kolja
 """
 import asyncio

@@ -2,6 +2,8 @@
 """
 Created on Sun Jan  5 23:57:33 2025
 
+Check, whether user is authorised
+
 @author: kolja
 """
 import logging

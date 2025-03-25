@@ -2,6 +2,8 @@
 """
 Created on Sun Jan  5 22:26:20 2025
 
+Handle lock and unlock action.
+
 @author: kolja
 """
 import logging

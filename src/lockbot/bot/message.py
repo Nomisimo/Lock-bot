@@ -2,6 +2,8 @@
 """
 Created on Tue Jan  7 00:06:26 2025
 
+Generate messages from nuki models.
+
 @author: kolja
 """
 from datetime import datetime

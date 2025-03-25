@@ -25,6 +25,7 @@ def greet():
     logger.info(f"Hello {user}, lockbot is installed.")
 
 def run_app(path_config: Path, dev: bool=False):
+    """ run full app."""
     config.load_config(path=path_config)
     
     app = create_app(token = config.get("telegram", "api_key"),
@@ -35,6 +36,7 @@ def run_app(path_config: Path, dev: bool=False):
 
 
 def setup_testdata(subparsers):
+    """ setup parser for requesting testdata."""
     parser = subparsers.add_parser("testdata", help="generate testdata via API calls.")
     parser.add_argument("-s", "--state", help="generate state data", default=False, action="store_true")
     parser.add_argument("-l", "--logs", help="generate log data", default=False, action="store_true")
@@ -44,12 +46,14 @@ def setup_testdata(subparsers):
     
 
 def run_testdata(path_config: Path):
+    """ request testdata."""
     config.load_config(path=path_config)
     asyncio.run(testdata.generate())
     logger.info("finished, testdata generated.")
     
     
 def setup_testhook(subparsers):
+    """ setup parser for script to send test data to webhook url."""
     parser = subparsers.add_parser("testhook", help="generate testcalls to webhook.")
     parser.add_argument("-t", "--time", help="timeout between requests.", type=int)
     parser.add_argument("-n", "--total", help="number of requests.", type=int)
@@ -58,6 +62,7 @@ def setup_testhook(subparsers):
 
 
 def run_testhook(path_config: Path, n=None, timeout=None):
+    """ run script to send testdata to webhook url."""
     config.load_config(path=path_config)
     logger.info("started, sending logs to webhook.")
     n = n or config.get("dev", "testhook_total", fallback=10)
@@ -69,11 +74,13 @@ def run_testhook(path_config: Path, n=None, timeout=None):
     logger.info("finished, logs send.")
 
 def setup_testflask(subparsers):
+    """ setup parser for flask to recieve webhook content."""
     parser = subparsers.add_parser("testflask", help="run flask to receive webhook calls.")
     
     parser.set_defaults(func="testflask")
     
 def run_testflask(path_config: Path):
+    """ run flask to recieve data from webhook."""
     config.load_config(path=path_config)
     logger.info("starting flask in debug environment")
     url = config.get("hook", "URL_RECEIVE")
