@@ -1,36 +1,74 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Mar 10 21:46:52 2025
-
-Generate and update codes for the keypad.
+Created on Tue Mar 25 23:27:50 2025
 
 @author: kolja
 """
-import asyncio
+
+
 import logging
-from datetime import datetime
 from itertools import batched
 
 from telegram import ReplyKeyboardMarkup, Update, ReplyKeyboardRemove
 from telegram.ext import (
-    ConversationHandler,
+    ApplicationBuilder, ConversationHandler,
     ContextTypes, CommandHandler,
 
 )
 from lockbot import config
-from lockbot.bot import auth
-from lockbot.bot.utils import keyboard_from_actions
 
 logger = logging.getLogger(__name__)
 
+from collections import defaultdict
+
+
+def keyboard_from_actions(actions, one_time=False):
+    keys = ["/"+key for key in actions]
+    
+    grid = list(batched(keys, 2))# list(zip(it,it))
+    reply_markup = ReplyKeyboardMarkup(grid, resize_keyboard=True, one_time_keyboard=one_time)
+
+    array = [f"- /{key}" for key in actions]
+    msg = "\n".join(array)
+    return reply_markup, msg
+
+
+async def handle_not_implemented(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    text = update.message.text
+    await update.message.reply_text(f"The action {text} is not implemented.")
+
+ACTIONS = defaultdict(lambda: handle_not_implemented)
+ACTIONS["lock"]
+ACTIONS["unlock"]
+ACTIONS["status"]
+ACTIONS["battery"]
+ACTIONS["keypad"]
+ACTIONS["help"]
+
+async def handle_help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    markup, msg = keyboard_from_actions(ACTIONS)
+    await update.message.reply_text('Choose or type an action:\n'+msg, reply_markup=markup)
+
+ACTIONS["help"] = handle_help
+
+
+async def handle_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    await handle_help(update, context)
+    
+    
+    
+# AUTH = defaultdict(lambda: handle_not_implemented)
+# AUTH["create"]
+# AUTH["update"]
+# AUTH["delete"]
+# AUTH["show"]
+# AUTH["cancel"]
 
 
 SELECT, CREATE, UPDATE =  range(3)
 AUTH_SELECT = {}
 AUTH_CREATE = {} 
 AUTH_UPDATE = {}
-
-
 
 async def handle_auth_entry(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # REQUEST AUTHS -> user_data
@@ -49,7 +87,7 @@ async def handle_auth_cancel(update: Update, context: ContextTypes.DEFAULT_TYPE)
 async def handle_auth_create(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     # CREATE AUTH with name from args
     context.user_data["auth_action"] = "CREATE"
-    actions = list(AUTH_CREATE) + ["cancel"]
+    actions = list(AUTH_CREATE).appen + ["cancel"]
     markup, msg = keyboard_from_actions(actions, one_time=False)
     await update.message.reply_text("Created auth, modify or submit\n"+msg, reply_markup=markup)
     return CREATE
@@ -74,8 +112,7 @@ async def handle_auth_delete(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
 
 async def handle_back_to_select(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    text = update.message.text
-    await update.message.reply_text(f"The action {text} is not implemented.")
+    await handle_not_implemented(update, context)
     return SELECT
 
 
@@ -106,3 +143,26 @@ def build_auth_conversation(entry: str = "keypad"):
             },
         )
     return keypad_conversation
+
+
+def main():
+    config.load_config("config_dev.cfg")
+    app = ApplicationBuilder().token(config.get("telegram", "api_key")).build()
+    app.add_handler(CommandHandler("start", handle_start))
+
+    conv_auth = build_auth_conversation("keypad")
+    app.add_handler(conv_auth)
+
+
+    # add all remaining handlers
+    for text, func in (ACTIONS).items():
+        if text in ("keypad"):
+            continue
+        app.add_handler(CommandHandler(text, func))
+
+    # Run the bot until the user presses Ctrl-C
+    app.run_polling(allowed_updates=Update.ALL_TYPES)
+
+
+if __name__ == "__main__":
+    main()

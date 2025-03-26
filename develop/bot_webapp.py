@@ -64,7 +64,7 @@ def main() -> None:
     """Start the bot."""
     # Create the Application and pass it your bot's token.
     from lockbot import config
-    config.load_config()
+    config.load_config("config_dev.cfg")
     token = config.get("telegram", "api_key")
     application = Application.builder().token(token).build()
     application.add_handler(CommandHandler("start", start))

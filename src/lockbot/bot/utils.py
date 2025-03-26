@@ -7,11 +7,21 @@ Utility functions for the telegram bot.
 @author: kolja
 """
 import logging
-
+from itertools import batched
+from telegram import ReplyKeyboardMarkup
 from telegram.ext import ContextTypes
 
 logger = logging.getLogger(__name__)
 
+def keyboard_from_actions(actions, one_time=False):
+    keys = ["/"+key for key in actions]
+    
+    grid = list(batched(keys, 2))# list(zip(it,it))
+    reply_markup = ReplyKeyboardMarkup(grid, resize_keyboard=True, one_time_keyboard=one_time)
+
+    array = [f"- /{key}" for key in actions]
+    msg = "\n".join(array)
+    return reply_markup, msg
 
 def remove_job_if_exists(name: str, context: ContextTypes.DEFAULT_TYPE) -> bool:
     """Remove job with given name. Returns whether job was removed."""

@@ -15,7 +15,7 @@ from telegram.ext import  ContextTypes
 
 from lockbot import config
 from lockbot.bot import auth
-from lockbot.bot.util import remove_job_if_exists, unpin_all
+from lockbot.bot.utils import remove_job_if_exists, unpin_all
 from lockbot.bot import message
 
 logger = logging.getLogger(__name__)
