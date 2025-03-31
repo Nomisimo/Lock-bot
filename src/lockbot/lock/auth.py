@@ -55,6 +55,8 @@ class SmartlockAuth:
         
         self.updateDate = dt_or_none(self.updateDate) 
         self.lastActiveDate = dt_or_none(self.lastActiveDate)
+        
+        self.logger = logging.getLogger(__name__)
     
     def to_json(self):
         res = convert_to_json(self)
@@ -98,6 +100,8 @@ class SmartlockAuthCreate:
         self.type = AUTH_TYPE(self.type)        
         self.allowedFromDate = dt_or_none(self.allowedFromDate)
         self.allowedUntilDate = dt_or_none(self.allowedUntilDate)
+        
+        self.logger = logging.getLogger(__name__)
     
         
     def to_json(self):
@@ -116,6 +120,8 @@ class SmartlockAuths:
         self.auths = [SmartlockAuth(**a) for a in auths]
         self._selected: SmartlockAuth = None
         self._updated: SmartlockAuth = None
+        
+        self.logger = logging.getLogger(__name__)
     
     # def __post_init__(self):
     #     self.auths = [SmartlockAuth(**a) for a in self.auths]
@@ -147,18 +153,18 @@ class SmartlockAuths:
     def updated(self) -> SmartlockAuth | None:
         """ Return current object with updates."""
         if self._selected is None:
-            logging.info("No auth selected")
+            self.logger.info("No auth selected")
         elif self._selected == self._updated:
-            logging.info("Selected auth has not changed.")
+            self.logger.info("Selected auth has not changed.")
             return None
         elif isinstance(self._updated, SmartlockAuthCreate):
-            logging.warning("Selected auth is not created yet.")
+            self.logger.warning("Selected auth is not created yet.")
         return self._updated
     
     def created(self) -> SmartlockAuthCreate | None:
         """ Return created object."""
         if not isinstance(self._updated, SmartlockAuthCreate):
-            logging.info("No auth created.")
+            self.logger.info("No auth created.")
             return None
         return self._updated
     
@@ -178,7 +184,7 @@ class SmartlockAuths:
                 self._selected = auth
                 self._updated = replace(auth)
                 return self
-        logging.info(f"{name=} not found.")
+        self.logger.warning(f"{name=} not found.")
         self.reset_selection()
         return self
     
@@ -187,7 +193,7 @@ class SmartlockAuths:
     def create(self, name: str, lock_ids: list[int]) -> Self:
         """ Create and select new auth object."""
         if name in self._get_names():
-            logging.info(f"{name=} already used")
+            self.logger.warning(f"{name=} already used")
             return self
         
         self.reset_selection()
@@ -216,7 +222,7 @@ class SmartlockAuths:
     def set_name(self, name: str) -> Self:
         """ Change name of selection."""
         if name in self._get_names():
-            logging.info("name is already used")
+            self.logger.warning("name is already used")
         elif self._updated:
             self._updated.name = name
         return self
@@ -224,7 +230,7 @@ class SmartlockAuths:
     def set_code(self, code: int) -> Self:
         """ Change code of selection."""
         if code in self._get_codes():
-            logging.info("code is already used")
+            self.logger.warning("code is not valid")
         elif self._updated:
             self._updated.code = code
         return self
@@ -273,6 +279,8 @@ class SmartlockAuths:
         self._updated.allowedFromDate = None
         self._updated.allowedUntilDate = None
         return self
+    
+        
     
     # TODO: Weekdays
     # TODO: AllowedTime

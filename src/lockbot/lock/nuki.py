@@ -331,6 +331,34 @@ class AsyncNuki(Nuki):
             auth = auth.to_json()
         url = urls.url_auth(lock_id=auth["smartlockId"], auth_id=auth["id"])
         success = await self.post_request(url, json=auth)
+        if success:
+            self.logger.info(f"Auth({auth['name']}) updated.")
+        return success
+    
+    async def put_auth(self, auth: dict, raw: bool=False):
+        if auth is None:
+            self.logger.error("put_auth: auth is None")
+            return False
+        if not raw:
+            assert isinstance(auth, SmartlockAuthCreate)
+            auth = auth.to_json()
+        url = urls.url_auth(lock_id=None) # lock_id from auth-smartlockIds
+        success = await self.put_request(url, json=auth)
+        if success:
+            self.logger.info(f"Auth({auth['name']}) created.")
+        return success
+    
+    async def del_auth(self, auth: dict, raw: bool=False):
+        if auth is None:
+            self.logger.error("del_auth: auth is None")
+            return False
+        if not raw:
+            assert isinstance(auth, SmartlockAuth)
+            auth = auth.to_json()
+        url = urls.url_auth(lock_id=auth["smartlockId"], auth_id=auth["id"])
+        success = await self.del_request(url)
+        if success: 
+            self.logger.info(f"Auth({auth['name']}) deleted.")
         return success
 
     
