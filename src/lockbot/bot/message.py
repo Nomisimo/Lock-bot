@@ -8,8 +8,8 @@ Generate messages from nuki models.
 """
 from datetime import datetime
 
-from lockbot.lock.const import ROOM_NAME_DE, LOG_STATE, DOOR_STATE, ACTION, ACTION_DE
-from lockbot.lock import SmartlockLog, Smartlock
+from lockbot.lock.const import ROOM_NAME_DE, LOG_STATE, DOOR_STATE, ACTION, ACTION_DE, AUTH_TYPE
+from lockbot.lock import SmartlockLog, Smartlock, SmartlockAuth, SmartlockAuths
 # from lockbot
 
 def timestamp():
@@ -58,4 +58,32 @@ def log(data: SmartlockLog, user="lockbot"):
     
     return msg
 
+def auth_show_help():
+    
+    msg = ("the /show command:\n"
+           "- '/show' to list all\n"
+           "- '/show name' to display specific")
+    return msg
 
+def auth_show_all(auths: SmartlockAuths) -> str:
+    names = [" - "+a.name for a in auths.auths if a.type == AUTH_TYPE.keypad_code]
+    msg = "\n".join(names)
+    return msg
+
+def auth_show(auth: SmartlockAuth) -> str:
+    if auth is None:
+        return "Not found."
+    return str(auth)
+
+def auth_del_help():
+    msg = ("the /delete command:\n"
+           "- '/delete name' to delete entry.")
+    return msg
+    
+def auth_del_success(auth):
+    return f"Entry {auth.name} deleted."
+
+def auth_del_fail(auth):
+    if auth is None:
+        return "Entry not found"
+    return f"Entry {auth.name} could not be deleted."

@@ -26,8 +26,9 @@ nuki.logger.setLevel(logging.DEBUG)
 """ TODOS:
     - ASync implementation
 """
+NAME = "string"
+
 #%% create
-NAME = "FinalTest"
 
 AUTHS = nuki.get_auth(lock_id)
 
@@ -61,3 +62,6 @@ AUTHS = nuki.get_auth(lock_id)
 selected = AUTHS.delete(NAME)
 val = nuki.del_auth(selected)
 print(val, selected)
+
+#%%
+AUTHS.auths
