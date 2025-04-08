@@ -12,9 +12,9 @@ from datetime import datetime
 from typing import  Self
 import logging
 
-from lockbot.lock.const import AUTH_TYPE
-from lockbot.lock.utils import dt_or_none, convert_to_json, tz_as_local
-from lockbot.lock.utils import generate_code, total_minutes
+from lh_core.lock.const import AUTH_TYPE
+from lh_core.lock.utils import dt_or_none, convert_to_json, tz_as_local
+from lh_core.lock.utils import generate_code, total_minutes
 
 @dataclass
 class SmartlockAuth:

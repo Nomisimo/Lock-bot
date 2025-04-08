@@ -17,10 +17,8 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 
-
-[tool.setuptools.packages.find]
-where = ["/"]
-include = ["lh_bot"]
+[project.scripts]
+lockbot = "lh_bot.__main__:main"
 
 [tool.setuptools.dynamic]
 version = {attr = "lh_bot.__version__"}

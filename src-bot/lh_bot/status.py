@@ -13,10 +13,10 @@ from datetime import datetime
 from telegram import Update
 from telegram.ext import  ContextTypes
 
-from lockbot import config
-from lockbot.bot import auth
-from lockbot.bot.utils import remove_job_if_exists, unpin_all
-from lockbot.bot import message
+from lh_core import config
+from lh_bot import auth
+from lh_bot.utils import remove_job_if_exists, unpin_all
+from lh_bot import message
 
 logger = logging.getLogger(__name__)
 

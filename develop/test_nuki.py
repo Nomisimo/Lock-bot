@@ -8,9 +8,9 @@ import asyncio
 import logging
 from pprint import pprint
 
-from lockbot import config
-from lockbot import Nuki, AsyncNuki
-from lockbot.lock.model import LogEntry
+from lh_core import config
+from lh_core import Nuki, AsyncNuki
+from lh_core.lock.model import LogEntry
         
 def test():
     logging.info("syncronous")    

@@ -12,7 +12,7 @@ from functools import wraps
 from telegram import Update
 from telegram.ext import  ContextTypes
 
-from lockbot import config
+from lh_core import config
 
 logger = logging.getLogger(__name__)
 

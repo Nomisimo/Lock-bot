@@ -5,9 +5,9 @@ Created on Sat Jan 25 23:30:46 2025
 @author: kolja
 """
 
-from lockbot import config
-from lockbot.tool import testdata
-from lockbot.lock import model
+from lh_core import config
+from lh_core.tool import testdata
+from lh_core.lock import model
 
 
 config.load_config("config_pytest.cfg")

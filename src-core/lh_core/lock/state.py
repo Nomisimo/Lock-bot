@@ -8,8 +8,8 @@ Created on Mon Mar 24 21:08:10 2025
 from dataclasses import dataclass
 from datetime import datetime
 
-from lockbot.lock import const
-from lockbot.lock.utils import convert_to_json, dt_or_none
+from lh_core.lock import const
+from lh_core.lock.utils import convert_to_json, dt_or_none
 
 
 @dataclass

@@ -17,10 +17,10 @@ from telegram.ext import (
     ContextTypes, CommandHandler,
 
 )
-from lockbot import config
-from lockbot.bot import auth
-from lockbot.bot.utils import keyboard_from_actions
-from lockbot.bot import message
+from lh_core import config
+from lh_bot import auth
+from lh_bot.utils import keyboard_from_actions
+from lh_bot import message
 
 logger = logging.getLogger(__name__)
 

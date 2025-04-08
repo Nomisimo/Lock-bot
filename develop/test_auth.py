@@ -7,10 +7,10 @@ Created on Mon Mar 24 00:06:57 2025
 import logging
 from datetime import datetime, timezone
 
-from lockbot import config
-from lockbot.lock import Nuki, urls
-from lockbot.lock.auth import SmartlockAuths, SmartlockAuth, SmartlockAuthCreate
-from lockbot.lock.const import AUTH_TYPE
+from lh_core import config
+from lh_core.lock import Nuki, urls
+from lh_core.lock.auth import SmartlockAuths, SmartlockAuth, SmartlockAuthCreate
+from lh_core.lock.const import AUTH_TYPE
 
 from pprint import pprint
 t1 = datetime(2025,4,10, 10)

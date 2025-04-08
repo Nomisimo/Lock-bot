@@ -18,8 +18,8 @@ from .keypad import build_auth_conversation
 from .utils import keyboard_from_actions
 
 
-from lockbot import config
-from lockbot.lock import AsyncNuki, DevAsyncNuki
+from lh_core import config
+from lh_core.lock import AsyncNuki, DevAsyncNuki
 
 logger = logging.getLogger(__name__)
 

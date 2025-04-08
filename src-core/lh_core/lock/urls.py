@@ -7,7 +7,7 @@ Define the url scheme of the NUKI API
 import logging
 from urllib.parse import urljoin, urlencode
 
-from lockbot import config
+from lh_core import config
 
 BASE_URL = r"https://api.nuki.io/"
 

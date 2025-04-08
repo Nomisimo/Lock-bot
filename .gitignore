@@ -2,9 +2,10 @@
 
 # config files for secrets
 *.cfg
-!src/lockbot/config_template.cfg
+!src-core/lh_core/config_template.cfg
+develop/credentials.json
 tests/data/*
-*credentials.json
+
 
 # temporary files which can be created if a process still has a handle open of a deleted file
 .fuse_hidden*

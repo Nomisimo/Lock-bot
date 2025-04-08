@@ -10,8 +10,8 @@ import logging
 import time
 import textwrap
 
-from lockbot import config
-from lockbot.tool import testdata
+from lh_core import config
+from lh_core.tool import testdata
 
 logger = logging.getLogger(__name__)
 

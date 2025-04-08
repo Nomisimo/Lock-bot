@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 def create_config(path=None) -> Path:
     assert PATH_TEMPLATE.exists()
-    version = metadata.version("lockbot")
+    version = metadata.version("lh_core")
     path.write_text(PATH_TEMPLATE.read_text().format(version=version))
     logger.info(f"new config file created at {path.resolve()}.\n\tUpdate the file.")
     raise ConfigError(f"The file @{path.resolve()} was created.")
@@ -37,7 +37,7 @@ def load_config(path=None) -> ConfigParser:
     CONFIG = ConfigParser()
     CONFIG.read(PATH_CONFIG)
     
-    version = metadata.version("lockbot")
+    version = metadata.version("lh_core")
     if version != (val := CONFIG.get("dev", "version", fallback="unknown")):
         logger.error(f"The installed {version=} doesnt match version='{val}' in the config file ({PATH_CONFIG})")
     
@@ -46,7 +46,7 @@ def load_config(path=None) -> ConfigParser:
 
 def show_config():
     dconfig = {k: dict(v) for k,v in dict(CONFIG).items()}
-    logger.info(f"the current config of lockbot:\n{pformat(dconfig)}")
+    logger.info(f"the current config of lh_core:\n{pformat(dconfig)}")
 
 
 def update_loglevels():

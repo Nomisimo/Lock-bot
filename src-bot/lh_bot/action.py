@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 from telegram import Update
 from telegram.ext import  ContextTypes
 
-from lockbot.bot import auth
+from lh_bot import auth
 
 
 @auth.validate_or_warning()

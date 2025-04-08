@@ -10,8 +10,8 @@ import json
 from time import sleep
 
 
-from lockbot import config
-from lockbot.lock import AsyncNuki
+from lh_core import config
+from lh_core.lock import AsyncNuki
 
 name_lock = "data_state_locked.json"
 name_unlock = "data_state_unlocked.json"

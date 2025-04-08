@@ -7,7 +7,7 @@ Parse json data.
 from datetime import datetime
 import pytz
 
-from lockbot.lock.const import (
+from lh_core.lock.const import (
     ACTION, 
     ADMINPIN_STATE,
     DEVICE_TYPE, 

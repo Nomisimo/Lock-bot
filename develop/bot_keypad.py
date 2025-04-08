@@ -8,7 +8,7 @@ Develop keypad dialog
 """
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, filters, MessageHandler, ConversationHandler
-from lockbot import config
+from lh_core import config
 
 import logging
 logging.getLogger("httpx").setLevel(logging.WARNING)

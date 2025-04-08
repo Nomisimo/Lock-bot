@@ -15,7 +15,7 @@ from telegram.ext import (
     MessageHandler,
     filters,
 )
-from lockbot import config
+from lh_core import config
 
 logger = logging.getLogger(__name__)
 

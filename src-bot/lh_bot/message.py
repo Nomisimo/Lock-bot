@@ -8,9 +8,9 @@ Generate messages from nuki models.
 """
 from datetime import datetime
 
-from lockbot.lock.const import ROOM_NAME_DE, LOG_STATE, DOOR_STATE, ACTION, ACTION_DE, AUTH_TYPE
-from lockbot.lock import SmartlockLog, Smartlock, SmartlockAuth, SmartlockAuths
-# from lockbot
+from lh_core.lock.const import ROOM_NAME_DE, LOG_STATE, DOOR_STATE, ACTION, ACTION_DE, AUTH_TYPE
+from lh_core.lock import SmartlockLog, Smartlock, SmartlockAuth, SmartlockAuths
+# from lh_core
 
 def timestamp():
     return datetime.now().strftime("%T")

@@ -7,11 +7,11 @@ Classes to handle requests to the NUKI API
 import logging
 import http
 import httpx
-from lockbot import config
+from lh_core import config
 
-from lockbot.lock import urls
+from lh_core.lock import urls
 
-from lockbot.lock import (Smartlock, SmartlockLog,
+from lh_core.lock import (Smartlock, SmartlockLog,
                           SmartlockAuth, 
                           SmartlockAuthCreate,
                           SmartlockAuths)

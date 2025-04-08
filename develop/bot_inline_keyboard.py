@@ -10,7 +10,7 @@ import logging
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import Application, CallbackQueryHandler, CommandHandler, ContextTypes
 
-from lockbot import config
+from lh_core import config
 logger = logging.getLogger(__name__)
 
 
