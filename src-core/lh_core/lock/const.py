@@ -240,6 +240,8 @@ class LOG_STATE(Enum):
     incomplete      = 8
     rejected        = 9
     rejected_night_mode = 10
+    
+    not_documented_1 = 224
     other_error     = 254
     unknown_error   = 255
     
