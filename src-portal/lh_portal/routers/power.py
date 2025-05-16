@@ -17,3 +17,8 @@ router = APIRouter(
 @router.get("/overview/")
 async def power_overview():
     pass
+
+
+@router.post("/update/")
+async def power_update():
+    pass

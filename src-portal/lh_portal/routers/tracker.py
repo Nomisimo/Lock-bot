@@ -17,3 +17,8 @@ router = APIRouter(
 @router.get("/overview/")
 async def tracker_overview():
     pass
+
+
+@router.post("/update/")
+async def tracker_update():
+    pass
