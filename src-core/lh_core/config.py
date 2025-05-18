@@ -4,7 +4,7 @@ from configparser import ConfigParser
 from pprint import pformat
 from importlib import metadata
 
-PATH_CONFIG = Path("config.cfg")
+PATH_CONFIG = Path("config_lautis.cfg")
 PATH_TEMPLATE = Path(__file__).parent.joinpath("config_template.cfg")
 CONFIG = None
 
