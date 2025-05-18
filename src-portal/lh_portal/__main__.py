@@ -4,10 +4,15 @@ Created on Thu May 15 20:43:10 2025
 
 @author: kolja
 """
+from pathlib import Path
 
 from fastapi import FastAPI
 from lh_portal import __version__
+from lh_core import config
 from .routers import lock, tracker, power
+
+path_config = Path("config_lautis.cfg")
+config.load_config(path_config)
 
 
 app = FastAPI(

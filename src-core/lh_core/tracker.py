@@ -19,8 +19,6 @@ from pydantic import BaseModel, TypeAdapter
 from typing import Literal, List
 
 
-# PATH_TRACKER_DEFAULT: Path = Path("CACHE_tile.json")
-
 class TileDevice(BaseModel):
     accuracy: float
     altitude: float
@@ -41,6 +39,8 @@ class TileDevice(BaseModel):
     voip_state: Literal["OFFLINE", "ONLINE"]  # je nach API erweitern
 
 CACHE_MODEL: BaseModel = TypeAdapter(List[TileDevice])
+CACHE_NAME: str = "CACHE_tile.json"
+
 
 async def retrieve_data():
     logging.debug("starting session")
