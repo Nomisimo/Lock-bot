@@ -2,7 +2,9 @@
 """
 Created on Sun May 18 13:26:17 2025
 
-@author: kolja
+Load data from the tile tracker api.
+
+@author: kolja, momo
 """
 
 from lh_core import config

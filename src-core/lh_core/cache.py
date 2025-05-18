@@ -2,6 +2,8 @@
 """
 Created on Sun May 18 14:59:28 2025
 
+generic json caching functions.
+
 @author: kolja
 """
 

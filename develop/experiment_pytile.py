@@ -26,7 +26,6 @@ async def main() -> None:
     config.load_config()
 
     filepath = Path(config.get("portal", "cache")) / "CACHE_tile.json"
-    # filepath = tracker.PATH_TRACKER_DEFAULT
 
     data = await tracker.retrieve_data()    
     cache.save_cache(filepath, data)
