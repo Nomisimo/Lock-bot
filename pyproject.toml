@@ -6,6 +6,10 @@ testpaths = [
 filterwarnings = [
     "ignore::DeprecationWarning"
 ]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "module"
+addopts = "--cov-report=term-missing --cov-report=html"
+
 
 [tool.coverage.run]
 omit = [ ]

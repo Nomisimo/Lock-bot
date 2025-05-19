@@ -25,6 +25,7 @@ dynamic = ["version"]
 tracker = []
 lock = []
 power = []
+dev = ["pytest", "pytest-asyncio", "pytest-cov"]
 
 [project.scripts]
 lhtool = "lh_core.__main__:main"

@@ -41,7 +41,7 @@ CACHE_MODEL: BaseModel = TypeAdapter(List[TileDevice])
 CACHE_NAME: str = "CACHE_tile.json"
 
 
-async def retrieve_data():
+async def retrieve_data(): 
     logging.debug("starting session")
     async with ClientSession() as session:
         api = await async_login(config.get("tile", "username"), 
@@ -55,7 +55,7 @@ async def retrieve_data():
 
 
 
-async def _test() -> None:
+async def _example() -> None: # pragma: no cover
     """Run!"""
     from pathlib import Path
     from lh_core import cache
@@ -71,10 +71,10 @@ async def _test() -> None:
     
     t1 = data[0]
     t2 = cdata[0]
-    print(t1 == t2)
+    assert (t1 == t2), str([t1, t2])
         
 # main()
-if __name__ == "__main__":
+if __name__ == "__main__": # pragma: no cover
     import asyncio
-    asyncio.run(_test())
+    asyncio.run(_example())
 
