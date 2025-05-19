@@ -13,74 +13,112 @@ from typing import  Self
 import logging
 
 from lh_core.lock.const import AUTH_TYPE
-from lh_core.lock.utils import dt_or_none, convert_to_json, tz_as_local
+from lh_core.lock.utils import dt_or_none, convert_to_json, tz_as_local, nuki_datetime_encoder
 from lh_core.lock.utils import generate_code, total_minutes
 
-@dataclass
-class SmartlockAuth:
-    smartlockId:    str 
-    type:           int # ToDo: create AUTH_TYPE
-    name:           str
-    id:             str = None
-    enabled:        bool = False
-    remoteAllowed:  bool = False
-    lockCount:      int = None
+from pydantic import BaseModel, Field
+from typing import Optional, TypeVar, Union, List, Type
+T = TypeVar("T", bound="BaseModel")
+
+class SmartlockAuth(BaseModel):
+    id: str =           Field(..., description="Eindeutige ID der Authentifizierung")
+    smartlockId: int =  Field(..., description="ID des zugehörigen Smartlocks")
+    accountUserId: Optional[int] = Field(None, description="ID des verknüpften Account-Benutzers")
+    authId: Optional[int] = Field(None, description="ID der verknüpften Smartlock-Authorisation")
     
-    accountUserId:  int = None
-    authId:         int = None
-    code:           int = None
-    fingerprints:   dict = None
+    name: str =         Field(..., description="Name des Benutzers oder Codes")
+    type: AUTH_TYPE =   Field(..., description="Typ der Berechtigung (z. B. 2 = App, 13 = Keypad-Code)")
+    code: Optional[int] = Field(None, description="Keypad-Code, falls Typ 13")
+    enabled: bool =     Field(..., description="Ob die Berechtigung aktiv ist")
+    remoteAllowed: Optional[bool] = Field(None, description="Ob Fernzugriff erlaubt ist")
     
-    allowedFromDate	: datetime = None
-    allowedUntilDate: datetime = None
-    allowedWeekDays:    int = None
-    allowedFromTime	:    int = None
-    allowedUntilTime:   int = None
+    allowedFromDate:  Optional[datetime] = Field(None, description="Zugriff ab diesem Datum erlaubt")
+    allowedUntilDate: Optional[datetime] = Field(None, description="Zugriff nur bis zu diesem Datum")
+    allowedWeekDays:  Optional[int] = Field(None, description="Bitmaske der erlaubten Wochentage")
+    allowedFromTime:  Optional[int] = Field(None, description="Zugriffszeitfenster ab (Minuten seit Mitternacht)")
+    allowedUntilTime: Optional[int] = Field(None, description="Zugriffszeitfenster bis (Minuten seit Mitternacht)")
     
-    lastActiveDate: datetime = None
-    creationDate:   datetime = None
-    updateDate:     datetime = None
-    operationId:    dict = None
-    error:          str = None
-    appId:          str = None
-    authTypeAsString: str = None
+    lockCount:      Optional[int] = Field(None, description="Anzahl der Nutzungen")
+    lastActiveDate: Optional[datetime] = Field(None, description="Letzter Zeitpunkt der Nutzung")
+    creationDate:   Optional[datetime] = Field(None, description="Zeitpunkt der Erstellung")
+    updateDate:     Optional[datetime] = Field(None, description="Zeitpunkt der letzten Änderung")
     
-    
-    def __post_init__(self):
-        self.type = AUTH_TYPE(self.type)
-        
-        self.allowedFromDate = dt_or_none(self.allowedFromDate)
-        self.allowedUntilDate = dt_or_none(self.allowedUntilDate)
-        self.creationDate = dt_or_none(self.creationDate)
-        
-        self.updateDate = dt_or_none(self.updateDate) 
-        self.lastActiveDate = dt_or_none(self.lastActiveDate)
-        
-        self.logger = logging.getLogger(__name__)
-    
+    operationId:    Optional[dict] = None
+    error:          Optional[str] = None
+    appId:          Optional[int] = None
+    authTypeAsString: Optional[str] = None
+
+
+
     def to_json(self):
-        res = convert_to_json(self)
-        return res
+        return self.model_dump(mode="json", exclude_none=True)
+    
+    class Config:
+        json_encoders = {datetime: nuki_datetime_encoder}
     
     @classmethod
-    def from_json(cls, data):
-        if isinstance(data, list):        
-            return SmartlockAuths(data)
+    def from_json(cls: Type[T], data: Union[dict, List[dict]]) -> Union[T, List[T]]:
+        if isinstance(data, list):
+            return [cls(**item) for item in data]
         return cls(**data)
     
-        
-    def __repr__(self):
-        return (f"{self.__class__.__name__}({self.authId}, {self.enabled},\t"
-                f"name='{self.name}',\t"
-                f"code={self.code}, "
-                f"from={self.allowedFromDate}, "
-                f"until={self.allowedUntilDate})"
-                
-                )
+    
+class SmartlockAuthUpdate(BaseModel):
+    name: str = Field(..., description="Name der Berechtigung")
+    code: Optional[str] = Field(None, description="Zugangscode für Keypad")
+    
+    allowedFromDate:  Optional[datetime] = Field(None, description="Zugriff erlaubt ab Datum")
+    allowedUntilDate: Optional[datetime] = Field(None, description="Zugriff erlaubt bis Datum")
+    allowedWeekDays:  Optional[int] = Field(None, description="Bitmaske für erlaubte Wochentage")
+    allowedFromTime:  Optional[int] = Field(None, description="Zugriffszeitfenster ab (Minuten seit Mitternacht)")
+    allowedUntilTime: Optional[int] = Field(None, description="Zugriffszeitfenster bis (Minuten seit Mitternacht)")
+    
+    accountUserId:    Optional[int]  = Field(None, description="ID des zugewiesenen Accounts")
+    enabled:          Optional[bool] = Field(None, description="Ist die Berechtigung aktiviert?")
+    remoteAllowed:    Optional[bool] = Field(None, description="Ist Fernzugriff erlaubt?")
+    
+    def to_json(self):
+        return self.model_dump(mode="json", exclude_none=True)
+    
+
+class SmartlockAuthCreate(BaseModel):
+    name: str = Field(..., description="Name der Berechtigung")
+    remoteAllowed:    bool = Field(..., description="Ist Fernzugriff erlaubt?")
+    code: Optional[str] = Field(None, description="Zugangscode für Keypad")
+    type: Optional[AUTH_TYPE] = Field(None, description="Art des Zugangs.")
+    allowedFromDate:  Optional[datetime] = Field(None, description="Zugriff erlaubt ab Datum")
+    allowedUntilDate: Optional[datetime] = Field(None, description="Zugriff erlaubt bis Datum")
+    allowedWeekDays:  Optional[int] = Field(None, description="Bitmaske für erlaubte Wochentage")
+    allowedFromTime:  Optional[int] = Field(None, description="Zugriffszeitfenster ab (Minuten seit Mitternacht)")
+    allowedUntilTime: Optional[int] = Field(None, description="Zugriffszeitfenster bis (Minuten seit Mitternacht)")
+    
+    accountUserId:    Optional[int]  = None
+    smartActionsEnabled: Optional[bool] = None
+    
+    def to_json(self):
+        return self.model_dump(mode="json", exclude_none=True)
+    
+
+# name*	[...]
+# allowedFromDate	[...]
+# allowedUntilDate	[...]
+# allowedWeekDays	[...]
+# allowedFromTime	integer($int32)
+# The allowed from time (in minutes from midnight)
+
+# allowedUntilTime	[...]
+# accountUserId	[...]
+# remoteAllowed*	[...]
+# smartActionsEnabled	[...]
+# type	integer($int32)
+# The optional type of the auth 0 .. app (default), 2 .. fob, 13 .. keypad
+
+# code
+    
     
     
 @dataclass    
-class SmartlockAuthCreate:
+class SmartlockAuthRequest:
     name: str
     remoteAllowed: bool
     
@@ -90,7 +128,7 @@ class SmartlockAuthCreate:
     allowedFromTime	:    int = None
     allowedUntilTime:   int = None
     
-    code: int = None
+    code: str = None
     accountUserId: int = None
     smartlockIds: list[int] = None
     smartActionsEnabled : bool = None
@@ -108,6 +146,9 @@ class SmartlockAuthCreate:
         res = convert_to_json(self)
         return res
     
+
+
+
 
 class SmartlockAuths:
     auths: list[SmartlockAuth]
@@ -157,13 +198,13 @@ class SmartlockAuths:
         elif self._selected == self._updated:
             self.logger.info("Selected auth has not changed.")
             return None
-        elif isinstance(self._updated, SmartlockAuthCreate):
+        elif isinstance(self._updated, SmartlockAuthRequest):
             self.logger.warning("Selected auth is not created yet.")
         return self._updated
     
-    def created(self) -> SmartlockAuthCreate | None:
+    def created(self) -> SmartlockAuthRequest | None:
         """ Return created object."""
-        if not isinstance(self._updated, SmartlockAuthCreate):
+        if not isinstance(self._updated, SmartlockAuthRequest):
             self.logger.info("No auth created.")
             return None
         return self._updated
@@ -199,7 +240,7 @@ class SmartlockAuths:
         self.reset_selection()
         if isinstance(lock_ids, int):
             lock_ids=[lock_ids]
-        new = SmartlockAuthCreate(
+        new = SmartlockAuthRequest(
             name=name, 
             type=AUTH_TYPE.keypad_code,
             code=None,

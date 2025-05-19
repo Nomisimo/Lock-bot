@@ -13,7 +13,7 @@ from lh_core.lock import urls
 
 from lh_core.lock import (Smartlock, SmartlockLog,
                           SmartlockAuth, 
-                          SmartlockAuthCreate,
+                          SmartlockAuthRequest,
                           SmartlockAuths)
 logger = logging.getLogger(__name__)
 
@@ -210,7 +210,7 @@ class Nuki():
             self.logger.error("put_auth: auth is None")
             return False
         if not raw:
-            assert isinstance(auth, SmartlockAuthCreate)
+            assert isinstance(auth, SmartlockAuthRequest)
             auth = auth.to_json()
         url = urls.url_auth(lock_id=None) # lock_id from auth-smartlockIds
         success = self.put_request(url, json=auth)
@@ -340,7 +340,7 @@ class AsyncNuki(Nuki):
             self.logger.error("put_auth: auth is None")
             return False
         if not raw:
-            assert isinstance(auth, SmartlockAuthCreate)
+            assert isinstance(auth, SmartlockAuthRequest)
             auth = auth.to_json()
         url = urls.url_auth(lock_id=None) # lock_id from auth-smartlockIds
         success = await self.put_request(url, json=auth)

@@ -6,7 +6,7 @@ Created on Mon Mar 24 21:06:39 2025
 """
 
 import random
-from datetime import datetime, time as pytime
+from datetime import datetime, time as pytime, timezone
 from dataclasses import dataclass, asdict
 from enum import Enum
 
@@ -14,10 +14,6 @@ import pytz
 
 tz_local = pytz.timezone("Europe/Berlin")
 tz_utc = pytz.utc
-
-
-def dt_to_str(dt: datetime):
-    return dt.astimezone(tz_utc).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
 
 def dt_or_none(val: str):
     """ convert to datetime if not None."""
@@ -31,7 +27,20 @@ def tz_as_local(dt: datetime):
         return dt.replace(tzinfo=tz_local)
     return dt.astimezone(tz_local)
 
+def tz_as_utc(dt: datetime):
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=tz_utc)
+    return dt.astimezone(tz_utc)
 
+def nuki_datetime_encoder(dt: datetime) -> str:
+    return tz_as_utc(dt).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+
+
+# deprecated
+def dt_to_str(dt: datetime):
+    return dt.astimezone(tz_utc).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+
+# deprecated
 def convert_to_json(da: object) -> dict:
     """ convert dataclass back to original json dict."""
     res = asdict(da)

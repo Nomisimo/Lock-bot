@@ -8,97 +8,89 @@ Created on Mon Mar 24 21:08:10 2025
 from dataclasses import dataclass
 from datetime import datetime
 
+from pydantic import BaseModel, Field
+from typing import Optional, TypeVar, Union, List, Type
+
 from lh_core.lock import const
-from lh_core.lock.utils import convert_to_json, dt_or_none
+from lh_core.lock.utils import dt_or_none, nuki_datetime_encoder
+
+T = TypeVar("T", bound="BaseModel")
 
 
-@dataclass
-class SmartlockState:
-    """ Dataclass to represent the "Smartlock.State"-model of the API. """
-    mode: const.LOCK_MODE
-    state: const.LOCK_STATE
-    trigger: const.TRIGGER
-    lastAction: const.ACTION
-    batteryCritical: bool
-    
-    doorState: const.DOOR_STATE
-    nightMode: bool
-    
-    batteryCharging	: bool = None
-    batteryCharge: int = None
-    keypadBatteryCritical: bool = None
-    doorsensorBatteryCritical: bool = None
-    
-    ringToOpenTimer: int = None
-    ringToOpenEnd: str = None
-    operationId: str = None
+class SmartlockState(BaseModel):
+    """Pydantic model for the Smartlock.State API response."""
 
-    def __post_init__(self):
-        """ handle conversion to enum."""
-        self.mode = const.LOCK_MODE(self.mode)
-        self.state = const.LOCK_STATE(self.state)
-        self.trigger = const.TRIGGER(self.trigger)
-        self.lastAction = const.ACTION(self.lastAction)
-        self.doorState = const.DOOR_STATE(self.doorState)
-        
+    mode: const.LOCK_MODE = Field(..., description="Der aktuelle Betriebsmodus des Smartlocks.")
+    state: const.LOCK_STATE = Field(..., description="Der aktuelle Verriegelungszustand des Smartlocks.")
+    doorState: const.DOOR_STATE = Field(..., description="Zustand des Türsensors (falls vorhanden).")
+    trigger: const.TRIGGER = Field(..., description="Ursache des letzten Zustandswechsels (z. B. App, Button, AutoUnlock).")
+    lastAction: const.ACTION = Field(..., description="Letzte durchgeführte Aktion (z. B. Unlock, Lock, Open).")
+    operationId: Optional[str] = Field(None, description="ID der letzten Operation (z. B. Unlock-Vorgang).")
+    
+    batteryCritical: bool = Field(..., description="Gibt an, ob der Batteriestand kritisch ist.")
+    batteryCharging: Optional[bool] = Field(None, description="Gibt an, ob die Batterie derzeit geladen wird.")
+    batteryCharge: Optional[int] = Field(None, description="Aktueller Batteriestand in Prozent.")
+    keypadBatteryCritical: Optional[bool] = Field(None, description="Kritischer Batteriestand des Keypads.")
+    doorsensorBatteryCritical: Optional[bool] = Field(None, description="Kritischer Batteriestand des Türsensors.")
+
+    nightMode: bool = Field(..., description="Gibt an, ob der Nachtmodus aktiviert ist.")
+    ringToOpenTimer: Optional[int] = None
+    ringToOpenEnd: Optional[str] = None
+    
     def to_json(self):
-        """ convert back to json-dict to be send to api."""
-        return convert_to_json(self)
-
-@dataclass
-class Smartlock:
-    """ Dataclass to represent the "Smartlock"-model of the API."""
-    smartlockId:    int
-    accountId:      int
-    type:           const.DEVICE_TYPE
+        return self.model_dump(mode="json", exclude_none=True)
     
-    authId:         int
-    name:           str
-    favorite:       bool
-    serverState:    int
-    adminPinState:  int
+    class Config:
+        json_encoders = {datetime: nuki_datetime_encoder}
 
-    config:         dict = None # Smartlock.Config{...}
-    advancedConfig: dict = None # Smartlock.AdvancedConfig{...}
-    openerAdvancedConfig: dict = None # Smartlock.OpenerAdvancedConfig{...}
-    smartdoorAdvancedConfig: dict = None # Smartlock.SmartdoorAdvancedConfig{...}
-    webConfig:      dict = None # Smartlock.WebConfig{...}
-    state:          SmartlockState = None # Smartlock.State{...}
+
+class Smartlock(BaseModel):
+    """Pydantic model for the Smartlock API object."""
+
+    smartlockId: int
+    accountId: int
+    type: "const.DEVICE_TYPE"
+
+    authId: int
+    name: str
+    favorite: bool
+    serverState: int
+    adminPinState: int
+
+    config: Optional[dict] = None  # Smartlock.Config{...}
+    advancedConfig: Optional[dict] = None
+    openerAdvancedConfig: Optional[dict] = None
+    smartdoorAdvancedConfig: Optional[dict] = None
+    webConfig: Optional[dict] = None
+    state: Optional["SmartlockState"] = None  # forward reference
+
+    lmType: Optional[int] = None
+    firmwareVersion: Optional[int] = None
+    hardwareVersion: Optional[int] = None
+    operationId: Optional[str] = None
+    virtualDevice: Optional[bool] = None
+    creationDate: Optional[datetime] = None
+    updateDate: Optional[datetime] = None
+    error: Optional[str] = None
+    previousSubscriptions: Optional[dict] = None  # ShsSubscription{...}
+    currentSubscription: Optional[dict] = None    # ShsSubscription{...}
+    region: Optional[int] = None
+    mountingVariant: Optional[int] = None
+    opener: Optional[bool] = None
+    box: Optional[bool] = None
+    smartDoor: Optional[bool] = None
+    keyturner: Optional[bool] = None
     
-    lmType:             int = None
-    firmwareVersion:    int = None
-    hardwareVersion:    int = None
-    operationId:        str = None
-    virtualDevice:      bool = None	      
-    creationDate:       datetime = None
-    updateDate:         datetime = None
-    error:              str = None
-    previousSubscriptions:  dict = None # 	ShsSubscription{...}
-    currentSubscription:    dict = None 	# ShsSubscription{...}
-    region:             int = None
-    mountingVariant:    int = None
-    opener:             bool = None
-    box:                bool = None
-    smartDoor:          bool = None
-    keyturner:          bool = None
-
-    def __post_init__(self):
-        """ convert back to json-dict to be send to api."""
-        self.type = const.DEVICE_TYPE(self.type)
-        self.state = SmartlockState(**self.state)
-        self.creationDate = dt_or_none(self.creationDate)
-        self.updateDate = dt_or_none(self.updateDate)
-        
-        
-
     def to_json(self):
-        """ convert back to json-dict to be send to api."""
-        res = convert_to_json(self)
-        res["state"] = convert_to_json(self.state)
-        return res
+        return self.model_dump(mode="json", exclude_none=True)
+    
+    class Config:
+        json_encoders = {datetime: nuki_datetime_encoder}
     
     @classmethod
-    def from_json(cls, data):
+    def from_json(cls: Type[T], data: Union[dict, List[dict]]) -> Union[T, List[T]]:
         if isinstance(data, list):
-            return [cls(**d) for d in data]
+            return [cls(**item) for item in data]
         return cls(**data)
+    
+    

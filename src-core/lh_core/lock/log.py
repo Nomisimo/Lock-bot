@@ -6,48 +6,44 @@ Created on Mon Mar 24 21:05:34 2025
 """
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 
 from lh_core.lock import const
-from lh_core.lock.utils import dt_or_none, convert_to_json
+from lh_core.lock.utils import dt_or_none, nuki_datetime_encoder
 
+from typing import Optional, TypeVar, Union, List, Type
 
-@dataclass
-class SmartlockLog:
-    """ Dataclass modeling the "SmartlockLog"-Model of the API
-    """
+from typing import Optional, Dict, Any
+from pydantic import BaseModel
+
+T = TypeVar("T", bound="BaseModel")
+
+class SmartlockLog(BaseModel):
     id: str
     smartlockId: int
-    deviceType: const.DEVICE_TYPE
+    deviceType: const.DEVICE_TYPE  
     name: str
-    action: const.ACTION
-    trigger: const.TRIGGER
-    state: const.LOG_STATE
+    action: const.ACTION            
+    trigger: const.TRIGGER          
+    state: const.LOG_STATE          
     autoUnlock: bool
     date: datetime
-    
-    accountUserid: int = None
-    authId: str = None
-    openerLog: dict = None      # TODO: handle sub structure
-    ajarTimeout: int = None
-    source: const.LOG_SOURCE = None
-    error: str = None        
-    
-    
-    def __post_init__(self):
-        """ handle conversion to Enums/datetime."""
-        self.action = const.ACTION(self.action)
-        self.deviceType = const.DEVICE_TYPE(self.deviceType)
-        self.source = const.LOG_SOURCE(self.source)
-        self.state = const.LOG_STATE(self.state)
-        self.trigger = const.TRIGGER(self.trigger)
-        
-        self.date = dt_or_none(self.date)       
+
+    accountUserId: Optional[int] = None
+    authId: Optional[str] = None
+    openerLog: Optional[Dict[str, Any]] = None  # TODO: refine substructure if needed
+    ajarTimeout: Optional[int] = None
+    source: Optional[const.LOG_SOURCE] = None
+    error: Optional[str] = None
     
     def to_json(self):
-        """ convert back to json-dict to be send to api."""
-        return convert_to_json(self)
+        return self.model_dump(mode="json", exclude_none=True)
     
+    class Config:
+        json_encoders = {datetime: nuki_datetime_encoder}
+
     @classmethod
-    def from_json(cls, data):
-        return [cls(**d) for d in data]
+    def from_json(cls: Type[T], data: Union[dict, List[dict]]) -> Union[T, List[T]]:
+        if isinstance(data, list):
+            return [cls(**item) for item in data]
+        return cls(**data)
