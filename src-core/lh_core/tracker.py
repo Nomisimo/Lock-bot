@@ -41,15 +41,17 @@ class TileDevice(BaseModel):
     voip_state: Literal["OFFLINE", "ONLINE"] = Field(..., description="Aktueller VoIP-Status des Geräts.")
 
 
-CACHE_MODEL: BaseModel = TypeAdapter(List[TileDevice])
+TileList: BaseModel = TypeAdapter(List[TileDevice])
 CACHE_NAME: str = "CACHE_tile.json"
 
 
-async def retrieve_data(): 
+async def retrieve_data(username: str = None, password: str = None): 
+    username = username or config.get("tile", "username")
+    password = password or config.get("tile", "password")
+    
     logging.debug("starting session")
     async with ClientSession() as session:
-        api = await async_login(config.get("tile", "username"), 
-                                config.get("tile", "password"), session)
+        api = await async_login(username, password, session)
         logging.debug("logged in")
         tiles = await api.async_get_tiles()
         logging.debug("data received")
@@ -71,7 +73,7 @@ async def _example() -> None: # pragma: no cover
 
     data = await retrieve_data()    
     cache.save_cache(filepath, data)
-    dt, cdata = cache.load_cache(filepath, CACHE_MODEL)
+    dt, cdata = cache.load_cache(filepath, TileList)
     
     t1 = data[0]
     t2 = cdata[0]

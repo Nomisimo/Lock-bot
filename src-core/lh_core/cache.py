@@ -9,14 +9,15 @@ generic json caching functions.
 
 from lh_core import config
 
-from typing import Type, TypeVar, List, Optional
+from typing import Type, TypeVar, List, Optional, Union
 from datetime import datetime, UTC
 from pathlib import Path
 import json
 import logging
 
-from pydantic import BaseModel
-MODEL = TypeVar("MODEL", bound=BaseModel)
+from pydantic import BaseModel, TypeAdapter
+# MODEL = TypeVar("MODEL", bound=BaseModel)
+MODEL = TypeVar("MODEL", bound=Union[BaseModel, TypeAdapter])
 
 
 def get_cache_path(filepath: Path):
@@ -25,12 +26,21 @@ def get_cache_path(filepath: Path):
     return filepath
 
 
-def save_cache(filepath: Path, data: MODEL):
+def save_cache(filepath: Path, data: MODEL, raw=False):
     filepath = get_cache_path(filepath)
+    
+    if raw:
+        json_data = data
+    elif isinstance(data, BaseModel):
+        json_data = data.model_dump(mode="json", exclude_none=True)
+    elif isinstance(data, list):
+        json_data = [item.model_dump(mode="json", exclude_none=True) for item in data]
+    else:
+        raise ValueError("data of type {type(data)} could not be cached.")
     
     cache = {
         "timestamp": datetime.now(UTC).isoformat(),
-        "data": [item.model_dump(mode="json") for item in data]
+        "data": json_data
     }
     
     with  filepath.open("w", encoding="utf-8") as file:
@@ -38,7 +48,7 @@ def save_cache(filepath: Path, data: MODEL):
     logging.info(f"saved @ {filepath}")
     
 
-def load_cache(filepath: Path, model: Type[MODEL]) -> (datetime, Optional[List[MODEL]]):
+def load_cache(filepath: Path, model: Type[MODEL], raw: bool=False) -> (datetime, Optional[List[MODEL]]):
     filepath = get_cache_path(filepath)
     if not filepath.exists:
         logging.warning("cache not found.")
@@ -51,13 +61,15 @@ def load_cache(filepath: Path, model: Type[MODEL]) -> (datetime, Optional[List[M
         except Exception as e:
             logging.warning(f"error while cache loading: {e}")
             return None, None
-    try:
-        
-        data = model.validate_python(cache["data"])
-    except Exception as e:
-        logging.warning(f"error while parsing: {e}")
-        return None, None
-    return timestamp, data
+    
+    if raw:
+        return timestamp, cache["data"]
+    if isinstance(model, TypeAdapter):
+        return timestamp, model.validate_python(cache["data"])
+    elif issubclass(model, BaseModel):
+        return timestamp,  model.validate(cache["data"])
+    else:
+        raise TypeError(f"model has to by TypeAdapter or BaseModel, but is '{type(model)}'")
 
 
 
