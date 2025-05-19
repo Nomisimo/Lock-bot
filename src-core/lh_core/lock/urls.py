@@ -13,16 +13,6 @@ BASE_URL = r"https://api.nuki.io/"
 
 logger = logging.getLogger(__name__)
 
-def get_headers(api_key=None):
-    if api_key is None:
-        api_key = config.get("nuki", "API_KEY")
-    headers = {
-        "accept": "application/json",
-        "Content-Type": "application/json",
-        "authorization": f"Bearer {api_key}"
-    }
-    return headers
-
 def url_status(lock_id=None):
     """ url for requesting lock state."""
     if lock_id:

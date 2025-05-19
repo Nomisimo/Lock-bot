@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Mar 24 21:08:10 2025
+Created on Mon Mar 24 21:05:34 2025
 
 @author: kolja
 """
-from datetime import datetime
 
-from pydantic import Field
-from typing import Optional
+from datetime import datetime
+from typing import Optional, Dict, Any, List
 
 from lh_core.lock import const
 from lh_core.lock.utils import NukiModel
 
-
+from pydantic import Field, TypeAdapter
 
 class SmartlockState(NukiModel):
     """Pydantic model for the Smartlock.State API response."""
@@ -72,6 +71,28 @@ class Smartlock(NukiModel):
     box: Optional[bool] = None
     smartDoor: Optional[bool] = None
     keyturner: Optional[bool] = None
+
+SmartlockList: NukiModel = TypeAdapter(List[Smartlock])
+
+
+class SmartlockLog(NukiModel):
+    id: str
+    smartlockId: int
+    deviceType: const.DEVICE_TYPE  
+    name: str
+    action: const.ACTION            
+    trigger: const.TRIGGER          
+    state: const.LOG_STATE          
+    autoUnlock: bool
+    date: datetime
+
+    accountUserId: Optional[int] = None
+    authId: Optional[str] = None
+    openerLog: Optional[Dict[str, Any]] = None  # TODO: refine substructure if needed
+    ajarTimeout: Optional[int] = None
+    source: Optional[const.LOG_SOURCE] = None
+    error: Optional[str] = None
     
+SmartlockLogList: NukiModel = TypeAdapter(List[SmartlockLog])
     
     

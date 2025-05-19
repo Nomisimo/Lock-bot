@@ -10,12 +10,11 @@ from . import urls
 from . import const
 
 # model classes
-from .log import SmartlockLog
-from .state import SmartlockState, Smartlock
+from .model import SmartlockLog, SmartlockState, Smartlock
+from .model import SmartlockLogList, SmartlockList
+
 from .auth import SmartlockAuth, SmartlockAuthRequest, SmartlockAuths
-
-
-from . import parse
+from .auth import SmartlockAuthList
 
 from .nuki import Nuki, AsyncNuki, DevAsyncNuki
 

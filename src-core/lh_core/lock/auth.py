@@ -8,14 +8,14 @@ Handeling (name, code) authentifications.
 """
 from dataclasses import dataclass, replace
 from datetime import datetime
-from typing import  Self
+from typing import  Self, List
 import logging
 
 from lh_core.lock.const import AUTH_TYPE
-from lh_core.lock.utils import NukiModel, dt_or_none, convert_to_json, tz_as_local
+from lh_core.lock.utils import NukiModel, tz_as_local
 from lh_core.lock.utils import generate_code, total_minutes
 
-from pydantic import Field
+from pydantic import Field, TypeAdapter
 from typing import Optional
 
 class SmartlockAuth(NukiModel):
@@ -45,6 +45,10 @@ class SmartlockAuth(NukiModel):
     error:          Optional[str] = None
     appId:          Optional[int] = None
     authTypeAsString: Optional[str] = None
+    
+    
+SmartlockAuthList: NukiModel = TypeAdapter(List[SmartlockAuth])
+
 
 
 class SmartlockAuthUpdate(NukiModel):
@@ -113,17 +117,9 @@ class SmartlockAuthRequest:
     type: AUTH_TYPE = None
     
     def __post_init__(self):
-        self.type = AUTH_TYPE(self.type)        
-        self.allowedFromDate = dt_or_none(self.allowedFromDate)
-        self.allowedUntilDate = dt_or_none(self.allowedUntilDate)
-        
         self.logger = logging.getLogger(__name__)
     
         
-    def to_json(self):
-        res = convert_to_json(self)
-        return res
-    
 
 
 
@@ -153,15 +149,6 @@ class SmartlockAuths:
     
     # ---- parser
         
-    def to_json(self):
-        res = [convert_to_json(a) for a in self.auths]
-        return res
-    
-    @classmethod
-    def from_json(cls, data):
-        if isinstance(data, list):        
-            return cls(data)
-        return SmartlockAuth(**data)
 
     # ---- selection
         
