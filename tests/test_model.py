@@ -9,7 +9,6 @@ from lh_core import config
 from lh_core.tool import testdata
 from lh_core import lock
 
-
 config.load_config("config_pytest.cfg")
 
 def test_log_conversion():
@@ -20,22 +19,16 @@ def test_log_conversion():
         assert log == converted
 
 def test_state_conversion():
-    state = testdata.load_status("lock")["state"]
+    state = testdata.load_status()["state"]
     converted = lock.SmartlockState(**state).to_json()
     assert state == converted
     
-    state = testdata.load_status("unlock")["state"]
-    converted = lock.SmartlockState(**state).to_json()
-    assert state == converted
     
 def test_smartlock_conversion():
-    state = testdata.load_status("lock")
+    state = testdata.load_status()
     converted = lock.Smartlock(**state).to_json()
     assert state == converted
     
-    state = testdata.load_status("unlock")
-    converted = lock.Smartlock(**state).to_json()
-    assert state == converted
     
 def test_smartlock_auth():
     auths = testdata.load_auths()

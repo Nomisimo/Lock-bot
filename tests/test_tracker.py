@@ -57,7 +57,7 @@ def test_reload_data(tmp_path: Path):
     filepath = tmp_path / "CACHE_tile.json"
     cache.save_cache(filepath, [original])
 
-    timestamp, loaded = cache.load_cache(filepath, tracker.CACHE_MODEL)
+    timestamp, loaded = cache.load_cache(filepath, tracker.TileList)
 
     assert isinstance(loaded, list)
     assert len(loaded) == 1
