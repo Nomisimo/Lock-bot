@@ -5,20 +5,13 @@ Created on Mon Mar 24 21:05:34 2025
 @author: kolja
 """
 
-from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime
+from typing import Optional, Dict, Any
 
 from lh_core.lock import const
-from lh_core.lock.utils import dt_or_none, nuki_datetime_encoder
+from lh_core.lock.utils import NukiModel
 
-from typing import Optional, TypeVar, Union, List, Type
-
-from typing import Optional, Dict, Any
-from pydantic import BaseModel
-
-T = TypeVar("T", bound="BaseModel")
-
-class SmartlockLog(BaseModel):
+class SmartlockLog(NukiModel):
     id: str
     smartlockId: int
     deviceType: const.DEVICE_TYPE  
@@ -36,14 +29,5 @@ class SmartlockLog(BaseModel):
     source: Optional[const.LOG_SOURCE] = None
     error: Optional[str] = None
     
-    def to_json(self):
-        return self.model_dump(mode="json", exclude_none=True)
     
-    class Config:
-        json_encoders = {datetime: nuki_datetime_encoder}
-
-    @classmethod
-    def from_json(cls: Type[T], data: Union[dict, List[dict]]) -> Union[T, List[T]]:
-        if isinstance(data, list):
-            return [cls(**item) for item in data]
-        return cls(**data)
+    

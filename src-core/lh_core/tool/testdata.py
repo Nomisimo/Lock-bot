@@ -39,8 +39,9 @@ def load_auths():
 
 
 async def generate(state: bool=True, logs: bool=True, auths: bool = True):
-    nuki = await AsyncNuki.new()
-    lock_id = nuki.lock_ids[0]
+    nuki = AsyncNuki()
+    lock_id = (await nuki.retrieve_smartlock_ids())[0]
+    
     assert lock_id
     
     

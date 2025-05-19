@@ -11,6 +11,8 @@ from dataclasses import dataclass, asdict
 from enum import Enum
 
 import pytz
+from pydantic import BaseModel
+from typing import List, Union, Type, TypeVar
 
 tz_local = pytz.timezone("Europe/Berlin")
 tz_utc = pytz.utc
@@ -34,6 +36,25 @@ def tz_as_utc(dt: datetime):
 
 def nuki_datetime_encoder(dt: datetime) -> str:
     return tz_as_utc(dt).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+
+T = TypeVar("T", bound="BaseModel")
+
+class NukiModel(BaseModel):
+
+    class Config:
+        json_encoders = {datetime: nuki_datetime_encoder}
+
+    def to_json(self):
+        return self.model_dump(mode="json", exclude_none=True)
+    
+    @classmethod
+    def from_json(cls: Type[T], data: Union[dict, List[dict]]) -> Union[T, List[T]]:
+        if isinstance(data, list):
+            return [cls(**item) for item in data]
+        return cls(**data)
+
+
+
 
 
 # deprecated

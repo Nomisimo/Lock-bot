@@ -4,20 +4,17 @@ Created on Mon Mar 24 21:08:10 2025
 
 @author: kolja
 """
-
-from dataclasses import dataclass
 from datetime import datetime
 
-from pydantic import BaseModel, Field
-from typing import Optional, TypeVar, Union, List, Type
+from pydantic import Field
+from typing import Optional
 
 from lh_core.lock import const
-from lh_core.lock.utils import dt_or_none, nuki_datetime_encoder
-
-T = TypeVar("T", bound="BaseModel")
+from lh_core.lock.utils import NukiModel
 
 
-class SmartlockState(BaseModel):
+
+class SmartlockState(NukiModel):
     """Pydantic model for the Smartlock.State API response."""
 
     mode: const.LOCK_MODE = Field(..., description="Der aktuelle Betriebsmodus des Smartlocks.")
@@ -37,14 +34,9 @@ class SmartlockState(BaseModel):
     ringToOpenTimer: Optional[int] = None
     ringToOpenEnd: Optional[str] = None
     
-    def to_json(self):
-        return self.model_dump(mode="json", exclude_none=True)
     
-    class Config:
-        json_encoders = {datetime: nuki_datetime_encoder}
 
-
-class Smartlock(BaseModel):
+class Smartlock(NukiModel):
     """Pydantic model for the Smartlock API object."""
 
     smartlockId: int
@@ -81,16 +73,5 @@ class Smartlock(BaseModel):
     smartDoor: Optional[bool] = None
     keyturner: Optional[bool] = None
     
-    def to_json(self):
-        return self.model_dump(mode="json", exclude_none=True)
-    
-    class Config:
-        json_encoders = {datetime: nuki_datetime_encoder}
-    
-    @classmethod
-    def from_json(cls: Type[T], data: Union[dict, List[dict]]) -> Union[T, List[T]]:
-        if isinstance(data, list):
-            return [cls(**item) for item in data]
-        return cls(**data)
     
     

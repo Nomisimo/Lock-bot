@@ -6,21 +6,19 @@ Handeling (name, code) authentifications.
 
 @author: kolja
 """
-
 from dataclasses import dataclass, replace
 from datetime import datetime
 from typing import  Self
 import logging
 
 from lh_core.lock.const import AUTH_TYPE
-from lh_core.lock.utils import dt_or_none, convert_to_json, tz_as_local, nuki_datetime_encoder
+from lh_core.lock.utils import NukiModel, dt_or_none, convert_to_json, tz_as_local
 from lh_core.lock.utils import generate_code, total_minutes
 
-from pydantic import BaseModel, Field
-from typing import Optional, TypeVar, Union, List, Type
-T = TypeVar("T", bound="BaseModel")
+from pydantic import Field
+from typing import Optional
 
-class SmartlockAuth(BaseModel):
+class SmartlockAuth(NukiModel):
     id: str =           Field(..., description="Eindeutige ID der Authentifizierung")
     smartlockId: int =  Field(..., description="ID des zugehörigen Smartlocks")
     accountUserId: Optional[int] = Field(None, description="ID des verknüpften Account-Benutzers")
@@ -49,21 +47,7 @@ class SmartlockAuth(BaseModel):
     authTypeAsString: Optional[str] = None
 
 
-
-    def to_json(self):
-        return self.model_dump(mode="json", exclude_none=True)
-    
-    class Config:
-        json_encoders = {datetime: nuki_datetime_encoder}
-    
-    @classmethod
-    def from_json(cls: Type[T], data: Union[dict, List[dict]]) -> Union[T, List[T]]:
-        if isinstance(data, list):
-            return [cls(**item) for item in data]
-        return cls(**data)
-    
-    
-class SmartlockAuthUpdate(BaseModel):
+class SmartlockAuthUpdate(NukiModel):
     name: str = Field(..., description="Name der Berechtigung")
     code: Optional[str] = Field(None, description="Zugangscode für Keypad")
     
@@ -77,11 +61,8 @@ class SmartlockAuthUpdate(BaseModel):
     enabled:          Optional[bool] = Field(None, description="Ist die Berechtigung aktiviert?")
     remoteAllowed:    Optional[bool] = Field(None, description="Ist Fernzugriff erlaubt?")
     
-    def to_json(self):
-        return self.model_dump(mode="json", exclude_none=True)
-    
 
-class SmartlockAuthCreate(BaseModel):
+class SmartlockAuthCreate(NukiModel):
     name: str = Field(..., description="Name der Berechtigung")
     remoteAllowed:    bool = Field(..., description="Ist Fernzugriff erlaubt?")
     code: Optional[str] = Field(None, description="Zugangscode für Keypad")
@@ -94,9 +75,6 @@ class SmartlockAuthCreate(BaseModel):
     
     accountUserId:    Optional[int]  = None
     smartActionsEnabled: Optional[bool] = None
-    
-    def to_json(self):
-        return self.model_dump(mode="json", exclude_none=True)
     
 
 # name*	[...]
