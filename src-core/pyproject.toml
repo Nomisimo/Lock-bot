@@ -14,14 +14,17 @@ dependencies = [
     "httpx >= 0.24",
     "pytz",
     "requests",
+    "pydantic",
+    "pytile",
+    "aiohttp"
+    
  ]
 dynamic = ["version"]
 
 [project.optional-dependencies]
-tracker = [
-    "pytile",
-
-]
+tracker = []
+lock = []
+power = []
 
 [project.scripts]
 lhtool = "lh_core.__main__:main"

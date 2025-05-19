@@ -24,7 +24,6 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
     )
 
-
 class TileInfo(BaseModel):
     last_timestamp: datetime
     latitude: float

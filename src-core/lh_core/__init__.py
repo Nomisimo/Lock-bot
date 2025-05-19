@@ -6,7 +6,6 @@ Created on Thu Jan  2 23:00:50 2025
 """
 __version__ = 0.4
 
-
 from . import config
 from . import lock
 from .lock.nuki import Nuki, AsyncNuki, DevAsyncNuki

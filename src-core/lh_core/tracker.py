@@ -9,7 +9,6 @@ Load data from the tile tracker api.
 
 from lh_core import config
 
-from pathlib import Path
 from aiohttp import ClientSession
 from pytile import async_login
 from datetime import datetime
@@ -53,3 +52,29 @@ async def retrieve_data():
         data = [TileDevice(**tile.as_dict()) for tile in tiles.values()]
         
     return data
+
+
+
+async def _test() -> None:
+    """Run!"""
+    from pathlib import Path
+    from lh_core import cache
+    
+    
+    config.load_config()
+
+    filepath = Path(config.get("portal", "cache")) / "CACHE_tile.json"
+
+    data = await retrieve_data()    
+    cache.save_cache(filepath, data)
+    dt, cdata = cache.load_cache(filepath, CACHE_MODEL)
+    
+    t1 = data[0]
+    t2 = cdata[0]
+    print(t1 == t2)
+        
+# main()
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(_test())
+
