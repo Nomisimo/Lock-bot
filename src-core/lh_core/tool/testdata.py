@@ -45,13 +45,6 @@ async def generate(state: bool=True, logs: bool=True, auths: bool = True):
     
     
     if state:
-        await nuki.post_lock(lock_id)
-        status = await nuki.get_smartlock(lock_id, raw=True)
-        path_data(name_lock).write_text(json.dumps(status, indent=2))
-        assert status == load_status("lock")
-        print(path_data(name_lock))
-        sleep(5) #  wait for locking to finish
-        
         await nuki.post_unlock(lock_id)
         status = await nuki.get_smartlock(lock_id, raw=True)
         path_data(name_unlock).write_text(json.dumps(status, indent=2))
@@ -59,6 +52,14 @@ async def generate(state: bool=True, logs: bool=True, auths: bool = True):
         print(path_data(name_unlock))
         sleep(5) # wait for unlocking to finish
     
+        await nuki.post_lock(lock_id)
+        status = await nuki.get_smartlock(lock_id, raw=True)
+        path_data(name_lock).write_text(json.dumps(status, indent=2))
+        assert status == load_status("lock")
+        print(path_data(name_lock))
+        sleep(5) #  wait for locking to finish
+        
+        
     if logs:
         logs = await nuki.get_logs(lock_id, limit=100, raw=True)
         path_data(name_logs).write_text((json.dumps(logs,indent=2)))

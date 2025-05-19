@@ -14,28 +14,32 @@ from pytile import async_login
 from datetime import datetime
 import logging
 
-from pydantic import BaseModel, TypeAdapter
+from pydantic import BaseModel, TypeAdapter, Field
 from typing import Literal, List
 
 
 class TileDevice(BaseModel):
-    accuracy: float
-    altitude: float
-    archetype: str
-    dead: bool
-    firmware_version: str
-    hardware_version: str
-    kind: Literal["TILE"]
-    last_timestamp: datetime
-    latitude: float
-    longitude: float
-    lost: bool
-    lost_timestamp: datetime
-    name: str
-    ring_state: Literal["STOPPED", "RINGING"]  # je nach API erweitern
-    uuid: str
-    visible: bool
-    voip_state: Literal["OFFLINE", "ONLINE"]  # je nach API erweitern
+    uuid: str = Field(..., description="Eindeutige Geräte-ID des Tiles.")
+    name: str = Field(..., description="Benutzerdefinierter Name des Geräts.")
+    
+    accuracy: float = Field(..., description="Genauigkeit der letzten Standortmessung in Metern.")
+    altitude: float = Field(..., description="Höhe über dem Meeresspiegel in Metern.")
+    latitude: float = Field(..., description="Breitengrad des letzten bekannten Standorts.")
+    longitude: float = Field(..., description="Längengrad des letzten bekannten Standorts.")
+    last_timestamp: datetime = Field(..., description="Zeitstempel der letzten bekannten Standortdaten.")
+    
+    kind: Literal["TILE"] = Field(..., description="Typ des Geräts, immer 'TILE'.")
+    archetype: str = Field(..., description="Geräte-Archetyp, z. B. 'OTHER', 'KEYS', etc.")
+    dead: bool = Field(..., description="Gibt an, ob das Tile als 'verloren' oder 'nicht mehr aktiv' markiert wurde.")
+    lost: bool = Field(..., description="Gibt an, ob das Gerät derzeit als verloren markiert ist.")
+    visible: bool = Field(..., description="Gibt an, ob das Tile aktuell sichtbar (in Reichweite) ist.")
+    lost_timestamp: datetime = Field(..., description="Zeitstempel, wann das Gerät als verloren markiert wurde.")
+    
+    firmware_version: str = Field(..., description="Firmware-Version des Tile-Geräts.")
+    hardware_version: str = Field(..., description="Hardware-Version des Tile-Geräts.")
+    ring_state: Literal["STOPPED", "RINGING"] = Field(..., description="Aktueller Klingelzustand des Geräts.")
+    voip_state: Literal["OFFLINE", "ONLINE"] = Field(..., description="Aktueller VoIP-Status des Geräts.")
+
 
 CACHE_MODEL: BaseModel = TypeAdapter(List[TileDevice])
 CACHE_NAME: str = "CACHE_tile.json"

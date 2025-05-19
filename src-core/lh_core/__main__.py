@@ -36,10 +36,10 @@ def setup_testdata(subparsers):
     return parser
     
 
-def run_testdata(path_config: Path):
+def run_testdata(path_config: Path, state: bool=True, logs: bool=True, auths: bool = True):
     """ request testdata."""
     config.load_config(path=path_config)
-    asyncio.run(testdata.generate())
+    asyncio.run(testdata.generate(state=state, logs=logs, auths=auths))
     logger.info("finished, testdata generated.")
     
     

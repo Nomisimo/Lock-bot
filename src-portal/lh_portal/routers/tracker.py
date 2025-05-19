@@ -7,12 +7,12 @@ Created on Thu May 15 21:48:17 2025
 
 from datetime import datetime
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, List
 
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from lh_core import tracker, cache
 from lh_portal.dependencies import cache_tracker
@@ -24,19 +24,20 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
     )
 
+
 class TileInfo(BaseModel):
-    last_timestamp: datetime
-    latitude: float
-    longitude: float
-    name: str
+    name: str = Field(..., description="Benutzerdefinierter Name des Tile-Geräts.")
+    latitude: float = Field(..., description="Breitengrad des letzten bekannten Standorts.")
+    longitude: float = Field(..., description="Längengrad des letzten bekannten Standorts.")
+    last_timestamp: datetime = Field(..., description="Zeitstempel der letzten bekannten Standortdaten.")
 
     @classmethod
     def from_tile_device(cls, device: tracker.TileDevice) -> "TileInfo":
         return cls(**device.model_dump())
     
 class TileOverview(BaseModel):
-    cache_time: datetime
-    tiles: list[TileInfo]
+    cache_time: datetime = Field(..., description="Zeitpunkt, zu dem die Tile-Daten zwischengespeichert wurden.")
+    tiles: List[TileInfo] = Field(..., description="Liste von Tile-Geräten mit grundlegenden Standortinformationen.")
 
 
 class AcceptedResponse(BaseModel):
