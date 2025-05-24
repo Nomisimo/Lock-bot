@@ -17,6 +17,7 @@ import logging
 from pydantic import BaseModel, TypeAdapter, Field
 from typing import Literal, List
 
+CACHE_NAME: str = "CACHE_tile.json"
 
 class TileDevice(BaseModel):
     uuid: str = Field(..., description="Eindeutige Geräte-ID des Tiles.")
@@ -42,7 +43,6 @@ class TileDevice(BaseModel):
 
 
 TileList: BaseModel = TypeAdapter(List[TileDevice])
-CACHE_NAME: str = "CACHE_tile.json"
 
 
 async def retrieve_data(username: str = None, password: str = None): 
@@ -59,16 +59,13 @@ async def retrieve_data(username: str = None, password: str = None):
         
     return data
 
-
-
 async def _example() -> None: # pragma: no cover
     """Run!"""
     from pathlib import Path
     from lh_core import cache
     
-    
-    config.load_config()
 
+    config.load_config()
     filepath = Path(config.get("portal", "cache")) / "CACHE_tile.json"
 
     data = await retrieve_data()    

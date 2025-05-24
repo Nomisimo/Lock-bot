@@ -8,8 +8,9 @@ Created on Sat Jan  4 13:21:20 2025
 from . import utils
 from . import urls
 from . import const
-
+from . import model
 # model classes
+
 from .model import SmartlockLog, SmartlockState, Smartlock
 from .model import SmartlockLogList, SmartlockList
 

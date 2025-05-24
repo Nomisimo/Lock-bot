@@ -13,6 +13,9 @@ from lh_core.lock.utils import NukiModel
 
 from pydantic import Field, TypeAdapter
 
+CACHE_NAME_LOGS: str  = "CACHE_nuki_logs.json"
+CACHE_NAME_STATE: str = "CACHE_nuki_state.json"
+
 class SmartlockState(NukiModel):
     """Pydantic model for the Smartlock.State API response."""
 
@@ -94,5 +97,6 @@ class SmartlockLog(NukiModel):
     error: Optional[str] = None
     
 SmartlockLogList: NukiModel = TypeAdapter(List[SmartlockLog])
-    
+
+
     

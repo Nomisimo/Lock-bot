@@ -8,13 +8,13 @@ import logging
 from pprint import pprint
 from typing import Optional, Union, List
 
-from lh_core import config
-from lh_core import Nuki
+from lh_core import config, cache, lock
+# from lh_core import Nuki
 
 def test():
     logging.info("syncronous")    
     config.load_config("config_dev.cfg")
-    nuki = Nuki()
+    nuki = lock.Nuki()
     nuki.retrieve_smartlock_ids()
     nuki.set_default_lock()
     

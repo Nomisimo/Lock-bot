@@ -26,8 +26,9 @@ router = APIRouter(
 
 
 class TileInfo(BaseModel):
-    name: str = Field(..., description="Benutzerdefinierter Name des Tile-Geräts.")
-    latitude: float = Field(..., description="Breitengrad des letzten bekannten Standorts.")
+    """ Reduzierter Status eines Tile-Trackers."""
+    name:        str = Field(..., description="Benutzerdefinierter Name des Tile-Geräts.")
+    latitude:  float = Field(..., description="Breitengrad des letzten bekannten Standorts.")
     longitude: float = Field(..., description="Längengrad des letzten bekannten Standorts.")
     last_timestamp: datetime = Field(..., description="Zeitstempel der letzten bekannten Standortdaten.")
 
@@ -35,7 +36,8 @@ class TileInfo(BaseModel):
     def from_tile_device(cls, device: tracker.TileDevice) -> "TileInfo":
         return cls(**device.model_dump())
     
-class TileOverview(BaseModel):
+class TileCache(BaseModel):
+    """ Vollständiges Tracker-Informationspaket."""
     cache_time: datetime = Field(..., description="Zeitpunkt, zu dem die Tile-Daten zwischengespeichert wurden.")
     tiles: List[TileInfo] = Field(..., description="Liste von Tile-Geräten mit grundlegenden Standortinformationen.")
 
@@ -45,13 +47,13 @@ class AcceptedResponse(BaseModel):
 
 
 @router.get("/overview/")
-async def tracker_overview(path_cache: Annotated[Path, Depends(cache_tracker)]) -> TileOverview:
-    dt, data = cache.load_cache(path_cache, tracker.CACHE_MODEL)
+async def tracker_overview(path_cache: Annotated[Path, Depends(cache_tracker)]) -> TileCache:
+    dt, data = cache.load_cache(path_cache, tracker.TileList)
     data = [TileInfo.from_tile_device(d) for d in data]
 
     # TODO: check dt and submit update request
     # TODO: setup regular update job.
-    return TileOverview(cache_time=dt, tiles=data)
+    return TileCache(cache_time=dt, tiles=data)
 
 
 
