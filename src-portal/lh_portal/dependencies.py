@@ -23,3 +23,6 @@ def cache_logs(path_cache: Annotated[Path, Depends(cache_dir)]) -> Path:
 
 def cache_state(path_cache: Annotated[Path, Depends(cache_dir)]) -> Path:
     return path_cache / lock.model.CACHE_NAME_STATE
+
+def cache_auth(path_cache: Annotated[Path, Depends(cache_dir)]) -> Path:
+    return path_cache / lock.model.CACHE_NAME_AUTH

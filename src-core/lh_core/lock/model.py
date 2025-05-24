@@ -15,6 +15,7 @@ from pydantic import Field, TypeAdapter
 
 CACHE_NAME_LOGS: str  = "CACHE_nuki_logs.json"
 CACHE_NAME_STATE: str = "CACHE_nuki_state.json"
+CACHE_NAME_AUTH: str = "CACHE_nuki_auth.json"
 
 class SmartlockState(NukiModel):
     """Pydantic model for the Smartlock.State API response."""
