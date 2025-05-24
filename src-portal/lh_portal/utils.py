@@ -6,6 +6,7 @@ Created on Sat May 24 22:54:00 2025
 """
 
 from datetime import datetime, UTC
+from pydantic import BaseModel
 
 def date_fmt(dt: datetime) -> str:
     """ string representation relativ to current time."""
@@ -21,3 +22,7 @@ def date_fmt(dt: datetime) -> str:
     elif tdif.days == 1:
         return dt.strftime("%X (gestern)")
     return dt.strftime("%X (%x)")
+
+
+class AcceptedResponse(BaseModel):
+    message: str

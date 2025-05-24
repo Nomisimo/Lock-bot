@@ -8,7 +8,10 @@ from pathlib import Path
 from datetime import datetime
 from typing import Literal, List, Annotated, Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import JSONResponse
+
+
 from pydantic import BaseModel, Field
 from pprint import pprint
 from lh_core import lock, cache
@@ -58,7 +61,7 @@ class NukiLogCache(BaseModel):
         
 
 @router.get("/logs/")
-async def lock_overview(
+async def nuki_logs(
     path_cache: Annotated[Path, Depends(cache_logs)],
     limit: int = 5
     ) -> NukiLogCache:
@@ -68,6 +71,14 @@ async def lock_overview(
     # TODO: setup regular update job.
     return data
     
+@router.post("/logs/update/",
+             status_code=status.HTTP_202_ACCEPTED,
+             responses={202:{"model": utils.AcceptedResponse, "description": "Request submitted to nuki API."}})
+async def nuki_logs_cupdate(path_cache: Annotated[Path, Depends(cache_logs)]) -> JSONResponse:
+    nuki = lock.Nuki()
+    data = nuki.get_logs(lock_id=None, limit=10)
+    cache.save_cache(path_cache, data)
+
     
 class NukiState(BaseModel):
     """ Model that represents the current state of the lock."""
@@ -100,13 +111,26 @@ class NukiStateCache(BaseModel):
         return cls(cache_time=dt, states=data)
     
 @router.get("/state/")
-async def lock_preview(
+async def nuki_state(
     path_cache: Annotated[Path, Depends(cache_state)],
     lock_id: int = None
     ):# -> list[NukiState]:
     """ get the current state of (all) smartlock(s)."""
     data = NukiStateCache.from_cache(path_cache, lock_id=lock_id)
     return data
+
+@router.post("/state/update/",
+             status_code=status.HTTP_202_ACCEPTED,
+             responses={202:{"model": utils.AcceptedResponse, "description": "Request submitted to nuki API."}})
+async def nuki_state_cupdate(path_cache: Annotated[Path, Depends(cache_state)]) -> JSONResponse:
+    nuki = lock.Nuki()
+    data = nuki.get_smartlock(lock_id=None)
+    cache.save_cache(path_cache, data)
+
+
+
+
+
 
 class NukiAuth(BaseModel):
     code_name: str
@@ -145,8 +169,16 @@ async def auth_table(
     """ get list of all authorisations."""
     data = NukiAuthCache.from_cache(path_cache)
     return data
-    
-    
+
+@router.post("/code/update/",
+             status_code=status.HTTP_202_ACCEPTED,
+             responses={202:{"model": utils.AcceptedResponse, "description": "Request submitted to nuki API."}})
+async def nuki_auth_cupdate(path_cache: Annotated[Path, Depends(cache_auth)]) -> JSONResponse:
+    nuki = lock.Nuki()
+    data = nuki.get_auths(lock_id=None)
+    cache.save_cache(path_cache, data)
+
+
 
 class LockAction(BaseModel):
     """ Model that represents a action request."""

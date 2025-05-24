@@ -16,7 +16,7 @@ from pydantic import BaseModel, Field
 
 from lh_core import tracker, cache
 from lh_portal.dependencies import cache_tracker
-
+from lh_portal.utils import AcceptedResponse
 
 router = APIRouter(
     prefix="/tracker",
@@ -41,19 +41,19 @@ class TileCache(BaseModel):
     cache_time: datetime = Field(..., description="Zeitpunkt, zu dem die Tile-Daten zwischengespeichert wurden.")
     tiles: List[TileInfo] = Field(..., description="Liste von Tile-Geräten mit grundlegenden Standortinformationen.")
 
-
-class AcceptedResponse(BaseModel):
-    message: str
+    @classmethod
+    def from_cache(path: Path):
+         dt, data = cache.load_cache(path, tracker.TileList)
+         data = [TileInfo.from_tile_device(d) for d in data]
+         return TileCache(cache_time=dt, tiles=data)   
 
 
 @router.get("/overview/")
 async def tracker_overview(path_cache: Annotated[Path, Depends(cache_tracker)]) -> TileCache:
-    dt, data = cache.load_cache(path_cache, tracker.TileList)
-    data = [TileInfo.from_tile_device(d) for d in data]
-
+    data = TileCache.from_cache(path_cache)
     # TODO: check dt and submit update request
     # TODO: setup regular update job.
-    return TileCache(cache_time=dt, tiles=data)
+    return data
 
 
 
