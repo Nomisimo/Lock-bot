@@ -4,6 +4,7 @@ Created on Sat May 24 22:54:00 2025
 
 @author: kolja
 """
+from enum import Enum
 
 from datetime import datetime, UTC
 from pydantic import BaseModel
@@ -26,3 +27,11 @@ def date_fmt(dt: datetime) -> str:
 
 class AcceptedResponse(BaseModel):
     message: str
+    
+class Tags(Enum):
+    tracker = "tracker"
+    lock = "lock"
+    logs = "lock/logs"
+    auth = "lock/code"
+    
+    

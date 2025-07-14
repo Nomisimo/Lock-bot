@@ -20,7 +20,7 @@ from lh_portal import utils
 
 router = APIRouter(
     prefix="/lock",
-    tags=["lock"],
+    tags=[utils.Tags.lock],
     responses={404: {"description": "Not found"}},
     )
 
@@ -129,9 +129,6 @@ async def nuki_state_cupdate(path_cache: Annotated[Path, Depends(cache_state)]) 
 
 
 
-
-
-
 class NukiAuth(BaseModel):
     code_name: str
     code: Optional[int] = Field(None, description="Keypad code")
@@ -162,7 +159,7 @@ class NukiAuthCache(BaseModel):
         
         return cls(cache_time=dt, auths=auths)
 
-@router.get("/code/")
+@router.get("/code/", tags=[utils.Tags.auth])
 async def auth_table(
     path_cache: Annotated[Path, Depends(cache_auth)],
     ) -> NukiAuthCache:
@@ -170,7 +167,7 @@ async def auth_table(
     data = NukiAuthCache.from_cache(path_cache)
     return data
 
-@router.post("/code/update/",
+@router.post("/code/update/", tags=[utils.Tags.auth],
              status_code=status.HTTP_202_ACCEPTED,
              responses={202:{"model": utils.AcceptedResponse, "description": "Request submitted to nuki API."}})
 async def nuki_auth_cupdate(path_cache: Annotated[Path, Depends(cache_auth)]) -> JSONResponse:
@@ -205,11 +202,11 @@ async def lock_action(action: LockAction):
 
 
 
-@router.post("/code/create")
+@router.post("/code/create", tags=[utils.Tags.auth],)
 async def auth_new(request: LockAuthForm):
     raise HTTPException(status_code=501, detail="TODO: implement this endpoint")    
 
-@router.post("/code/update")
+@router.post("/code/update", tags=[utils.Tags.auth],)
 async def auth_update(request: LockAuthForm):
     raise HTTPException(status_code=501, detail="TODO: implement this endpoint")    
 
